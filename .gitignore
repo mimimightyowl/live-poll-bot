@@ -7,3 +7,15 @@ dist
 npm-debug.log
 logs
 tmp
+
+# ESLint cache
+.eslintcache
+
+# Prettier cache
+.prettiercache
+
+# Coverage directory used by tools like istanbul
+coverage
+
+# Build outputs
+build
