@@ -1,0 +1,22 @@
+version: '3.9'
+services:
+  db:
+    image: postgres:16
+    container_name: app-db
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: main
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - app
+
+volumes:
+  db-data:
+
+networks:
+  app:
+    driver: bridge
