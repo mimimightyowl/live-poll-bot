@@ -1,9 +1,7 @@
-const express = require('express');
-const pool = require('./db');
-const errorHandler = require('./errors/errorHandler');
-
-// Импорт маршрутов
-const usersRoutes = require('./routes/users');
+import express, { Request, Response } from 'express';
+import pool from './db';
+import errorHandler from './errors/errorHandler';
+import usersRoutes from './routes/users';
 
 const app = express();
 app.use(express.json());
@@ -12,7 +10,7 @@ app.use(express.json());
 app.use('/api/users', usersRoutes);
 
 // Простой тестовый эндпоинт для проверки работы сервера
-app.get('/health', (req, res) => {
+app.get('/health', (req: Request, res: Response) => {
   res.json({
     status: 'OK',
     message: 'API service is running',
@@ -27,3 +25,5 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`API service running on port ${PORT}`);
 });
+
+export default app;

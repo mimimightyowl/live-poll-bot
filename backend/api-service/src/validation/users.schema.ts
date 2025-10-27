@@ -1,12 +1,9 @@
-const { z } = require('zod');
+import { z } from 'zod';
 
 // Схема для создания пользователя
-const createUserSchema = z.object({
+export const createUserSchema = z.object({
   username: z
-    .string({
-      required_error: 'Username is required',
-      invalid_type_error: 'Username must be a string',
-    })
+    .string('Username must be a string')
     .min(1, 'Username cannot be empty')
     .max(50, 'Username must be at most 50 characters')
     .regex(
@@ -15,10 +12,7 @@ const createUserSchema = z.object({
     ),
 
   email: z
-    .string({
-      required_error: 'Email is required',
-      invalid_type_error: 'Email must be a string',
-    })
+    .string('Email must be a string')
     .email('Invalid email format')
     .max(255, 'Email must be at most 255 characters'),
 
@@ -37,7 +31,7 @@ const createUserSchema = z.object({
 });
 
 // Схема для обновления пользователя
-const updateUserSchema = z.object({
+export const updateUserSchema = z.object({
   username: z
     .string()
     .min(1, 'Username cannot be empty')
@@ -69,7 +63,7 @@ const updateUserSchema = z.object({
 });
 
 // Схема для валидации ID
-const paramsSchema = z.object({
+export const paramsSchema = z.object({
   id: z
     .string()
     .regex(/^\d+$/, 'ID must be a positive number')
@@ -77,11 +71,4 @@ const paramsSchema = z.object({
 });
 
 // Схема для частичного обновления (все поля опциональны)
-const patchUserSchema = updateUserSchema.partial();
-
-module.exports = {
-  createUserSchema,
-  updateUserSchema,
-  patchUserSchema,
-  paramsSchema,
-};
+export const patchUserSchema = updateUserSchema.partial();

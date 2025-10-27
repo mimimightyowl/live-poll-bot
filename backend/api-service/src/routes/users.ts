@@ -1,16 +1,27 @@
-const express = require('express');
-const router = express.Router();
-const pool = require('../db');
-const AppError = require('../errors/AppError');
-const validate = require('../middlewares/validate');
-const {
+import express, { Request, Response, NextFunction } from 'express';
+import pool from '../db';
+import AppError from '../errors/AppError';
+import validate from '../middlewares/validate';
+import {
   createUserSchema,
   updateUserSchema,
   paramsSchema,
-} = require('../validation/users.schema');
+} from '../validation/users.schema';
+
+const router = express.Router();
+
+interface User {
+  id: number;
+  username: string;
+  email: string;
+  full_name: string | null;
+  telegram_id: string | null;
+  created_at: Date;
+  updated_at: Date;
+}
 
 // GET /api/users
-router.get('/', async (req, res, next) => {
+router.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const result = await pool.query('SELECT * FROM users ORDER BY id ASC');
     res.json({ success: true, data: result.rows });
@@ -23,7 +34,7 @@ router.get('/', async (req, res, next) => {
 router.get(
   '/:id',
   validate({ params: paramsSchema }),
-  async (req, res, next) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params;
       const result = await pool.query('SELECT * FROM users WHERE id = $1', [
@@ -43,7 +54,7 @@ router.get(
 router.post(
   '/',
   validate({ body: createUserSchema }),
-  async (req, res, next) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { username, email, full_name, telegram_id } = req.body;
 
@@ -67,7 +78,7 @@ router.post(
 router.put(
   '/:id',
   validate({ params: paramsSchema, body: updateUserSchema }),
-  async (req, res, next) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params;
       const { username, email, full_name, telegram_id } = req.body;
@@ -99,7 +110,7 @@ router.put(
 router.delete(
   '/:id',
   validate({ params: paramsSchema }),
-  async (req, res, next) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params;
       const result = await pool.query(
@@ -119,4 +130,4 @@ router.delete(
   }
 );
 
-module.exports = router;
+export default router;

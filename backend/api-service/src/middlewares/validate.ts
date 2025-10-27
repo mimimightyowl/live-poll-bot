@@ -1,8 +1,17 @@
-const validate = schema => {
-  return async (req, res, next) => {
+import { Request, Response, NextFunction } from 'express';
+import { ZodSchema } from 'zod';
+
+interface ValidationSchema {
+  params?: ZodSchema<any>;
+  body?: ZodSchema<any>;
+  query?: ZodSchema<any>;
+}
+
+const validate = (schema: ValidationSchema) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
     try {
       // Валидация может быть для body, params, query
-      const validateObject = {};
+      const validateObject: any = {};
 
       if (schema.params) {
         validateObject.params = await schema.params.parseAsync(req.params);
@@ -29,15 +38,17 @@ const validate = schema => {
 
       next();
     } catch (error) {
-      if (error.name === 'ZodError') {
-        return res.status(400).json({
+      if (error instanceof Error && 'issues' in error) {
+        const zodError = error as any;
+        res.status(400).json({
           success: false,
           error: 'Validation error',
-          details: error.errors.map(err => ({
+          details: zodError.issues.map((err: any) => ({
             field: err.path.join('.'),
             message: err.message,
           })),
         });
+        return;
       }
 
       next(error);
@@ -45,4 +56,4 @@ const validate = schema => {
   };
 };
 
-module.exports = validate;
+export default validate;
