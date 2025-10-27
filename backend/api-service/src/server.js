@@ -1,5 +1,6 @@
 const express = require('express');
 const pool = require('./db');
+const errorHandler = require('./errors/errorHandler');
 
 // Импорт маршрутов
 const usersRoutes = require('./routes/users');
@@ -18,6 +19,9 @@ app.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
   });
 });
+
+// Централизованная обработка ошибок (всегда в конце)
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
