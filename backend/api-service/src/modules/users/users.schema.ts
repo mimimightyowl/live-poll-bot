@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-// Схема для создания пользователя
+// Schema for creating a user
 export const createUserSchema = z.object({
   username: z
     .string('Username must be a string')
@@ -30,7 +30,7 @@ export const createUserSchema = z.object({
     .nullable(),
 });
 
-// Схема для обновления пользователя
+// Schema for updating a user
 export const updateUserSchema = z.object({
   username: z
     .string()
@@ -62,7 +62,7 @@ export const updateUserSchema = z.object({
     .nullable(),
 });
 
-// Схема для валидации ID
+// Schema for validating ID
 export const paramsSchema = z.object({
   id: z
     .string()
@@ -70,5 +70,5 @@ export const paramsSchema = z.object({
     .transform(val => parseInt(val, 10)),
 });
 
-// Схема для частичного обновления (все поля опциональны)
+// Schema for partial update (all fields optional)
 export const patchUserSchema = updateUserSchema.partial();

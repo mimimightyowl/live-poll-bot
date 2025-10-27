@@ -22,7 +22,7 @@ const errorHandler = (
 ): void => {
   console.error('❌ Error caught:', err);
 
-  // Если это AppError — используем его данные
+  // If it's an AppError, use its data
   if (err instanceof AppError) {
     const response: ErrorResponse = {
       success: false,
@@ -37,7 +37,7 @@ const errorHandler = (
     return;
   }
 
-  // Обработка Postgres ошибок
+  // Handle Postgres errors
   const pgErrorMap: PgErrorMap = {
     '23505': {
       status: 409,
@@ -53,7 +53,7 @@ const errorHandler = (
     '42703': { status: 500, message: 'Undefined column' },
   };
 
-  const error = err as any; // для доступа к code
+  const error = err as any;
 
   if (error.code && pgErrorMap[error.code]) {
     const mapped = pgErrorMap[error.code];
@@ -65,7 +65,7 @@ const errorHandler = (
     return;
   }
 
-  // Обработка ошибок подключения к БД
+  // Handle database connection errors
   if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
     res.status(503).json({
       success: false,
@@ -75,7 +75,7 @@ const errorHandler = (
     return;
   }
 
-  // Неизвестная ошибка
+  // Unknown error
   res.status(500).json({
     success: false,
     error: 'Internal Server Error',

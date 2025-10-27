@@ -10,7 +10,6 @@ interface ValidationSchema {
 const validate = (schema: ValidationSchema) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      // Валидация может быть для body, params, query
       const validateObject: any = {};
 
       if (schema.params) {
@@ -25,7 +24,7 @@ const validate = (schema: ValidationSchema) => {
         validateObject.query = await schema.query.parseAsync(req.query);
       }
 
-      // Заменяем исходные данные на валидированные
+      // Replace original data with validated data
       if (validateObject.params) {
         req.params = validateObject.params;
       }
