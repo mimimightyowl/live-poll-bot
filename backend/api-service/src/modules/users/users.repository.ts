@@ -1,6 +1,6 @@
 import pool from '../../shared/db';
 import { User, CreateUserDto, UpdateUserDto } from './users.types';
-import AppError from '../../shared/errors/AppError';
+import AppError from '../../shared/errors/app-error';
 
 class UsersRepository {
   async findAll(): Promise<User[]> {

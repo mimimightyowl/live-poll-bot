@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import AppError from './AppError';
+import AppError from './app-error';
 
 interface ErrorResponse {
   success: false;
@@ -20,7 +20,7 @@ const errorHandler = (
   res: Response,
   next: NextFunction
 ): void => {
-  console.error('❌ Error caught:', err);
+  console.error('Error caught:', err);
 
   // If it's an AppError, use its data
   if (err instanceof AppError) {
