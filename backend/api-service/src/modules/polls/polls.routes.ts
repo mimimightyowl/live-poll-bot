@@ -86,4 +86,19 @@ router.delete(
   }
 );
 
+// GET /api/polls/:id/results
+router.get(
+  '/:id/results',
+  validate({ params: paramsSchema }),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const id = req.params.id as unknown as number;
+      const results = await pollService.getPollResults(id);
+      res.json({ success: true, data: results });
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
 export default router;
