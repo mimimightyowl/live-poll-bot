@@ -6,16 +6,15 @@
     "build": "tsc",
     "start": "NODE_ENV=production node dist/server.js",
     "dev": "NODE_ENV=development ts-node-dev --respawn --transpile-only src/server.ts",
-    "test": "NODE_ENV=test echo \"Error: no test specified\" && exit 1",
     "migrate": "node -r ts-node/register -r ./src/shared/env-loader node_modules/.bin/node-pg-migrate -m src/shared/infra/migrations up",
     "migrate:down": "node -r ts-node/register -r ./src/shared/env-loader node_modules/.bin/node-pg-migrate -m src/shared/infra/migrations down",
     "migrate:create": "node -r ts-node/register -r ./src/shared/env-loader node_modules/.bin/node-pg-migrate -m src/shared/infra/migrations create",
     "docker:dev:up": "docker-compose -f ../../docker/docker-compose.dev.yml up -d",
     "docker:dev:down": "docker-compose -f ../../docker/docker-compose.dev.yml down",
-    "docker:dev:logs": "docker-compose -f ../../docker/docker-compose.dev.yml logs -f db",
+    "dev:stack": "npm run docker:dev:up && docker-compose -f ../../docker/docker-compose.dev.yml logs -f api",
     "docker:test:up": "docker-compose -f ../../docker/docker-compose.test.yml up -d",
     "docker:test:down": "docker-compose -f ../../docker/docker-compose.test.yml down",
-    "docker:test:logs": "docker-compose -f ../../docker/docker-compose.test.yml logs -f db-test"
+    "test:stack": "npm run docker:test:up && docker-compose -f ../../docker/docker-compose.test.yml logs -f api"
   },
   "keywords": [],
   "author": "",

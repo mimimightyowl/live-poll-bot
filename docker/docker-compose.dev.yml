@@ -20,8 +20,59 @@ services:
     networks:
       - app
 
+  migrate:
+    image: node:20-alpine
+    container_name: app-migrate-dev
+    working_dir: /app
+    volumes:
+      - ../backend/api-service:/app
+      - api-node-modules:/app/node_modules
+    environment:
+      NODE_ENV: development
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: app
+      DB_PASSWORD: secret
+      DB_NAME: main_dev
+      DATABASE_URL: postgresql://app:secret@db:5432/main_dev
+    command: sh -c "npm ci && npm run migrate"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: 'no'
+    networks:
+      - app
+
+  api:
+    image: node:20-alpine
+    container_name: app-api-dev
+    working_dir: /app
+    volumes:
+      - ../backend/api-service:/app
+      - api-node-modules:/app/node_modules
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: app
+      DB_PASSWORD: secret
+      DB_NAME: main_dev
+      DATABASE_URL: postgresql://app:secret@db:5432/main_dev
+    ports:
+      - '3000:3000'
+    command: sh -c "npm ci && npm run dev"
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    networks:
+      - app
+
 volumes:
   db-dev-data:
+  api-node-modules:
 
 networks:
   app:
