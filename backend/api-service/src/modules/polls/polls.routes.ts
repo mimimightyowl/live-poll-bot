@@ -4,6 +4,8 @@ import {
   createPollSchema,
   updatePollSchema,
   paramsSchema,
+  addPollOptionSchema,
+  pollOptionParamsSchema,
 } from './polls.schema';
 import validate from '../../shared/middlewares/validate';
 
@@ -25,7 +27,7 @@ router.get(
   validate({ params: paramsSchema }),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const id = req.params.id as unknown as number;
+      const id = Number(req.params.id);
       const poll = await pollService.getPollById(id);
       res.json({ success: true, data: poll });
     } catch (err) {
@@ -58,7 +60,7 @@ router.put(
   validate({ params: paramsSchema, body: updatePollSchema }),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const id = req.params.id as unknown as number;
+      const id = Number(req.params.id);
       const poll = await pollService.updatePoll(id, req.body);
       res.json({
         success: true,
@@ -77,7 +79,7 @@ router.delete(
   validate({ params: paramsSchema }),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const id = req.params.id as unknown as number;
+      const id = Number(req.params.id);
       await pollService.deletePoll(id);
       res.json({ success: true, message: 'Poll deleted successfully' });
     } catch (err) {
@@ -92,7 +94,7 @@ router.get(
   validate({ params: paramsSchema }),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const id = req.params.id as unknown as number;
+      const id = Number(req.params.id);
       const results = await pollService.getPollResults(id);
       res.json({ success: true, data: results });
     } catch (err) {
@@ -107,7 +109,7 @@ router.get(
   validate({ params: paramsSchema }),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const pollId = req.params.id as unknown as number;
+      const pollId = Number(req.params.id);
       const options = await pollService.getPollOptions(pollId);
       res.json({ success: true, data: options });
     } catch (err) {
@@ -119,10 +121,10 @@ router.get(
 // POST /api/polls/:id/options
 router.post(
   '/:id/options',
-  validate({ params: paramsSchema }),
+  validate({ params: paramsSchema, body: addPollOptionSchema }),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const pollId = req.params.id as unknown as number;
+      const pollId = Number(req.params.id);
       const { text } = req.body;
       const option = await pollService.addPollOption(pollId, text);
       res.status(201).json({ success: true, data: option });
@@ -135,6 +137,7 @@ router.post(
 // DELETE /api/polls/:pollId/options/:optionId
 router.delete(
   '/:pollId/options/:optionId',
+  validate({ params: pollOptionParamsSchema }),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const pollId = Number(req.params.pollId);
