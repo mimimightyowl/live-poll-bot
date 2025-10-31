@@ -40,8 +40,8 @@ class PollService {
     return pollRepository.addPollOption(pollId, text);
   }
 
-  async deletePollOption(optionId: number): Promise<void> {
-    return pollRepository.deletePollOption(optionId);
+  async deletePollOption(pollId: number, optionId: number): Promise<void> {
+    return pollRepository.deletePollOption(pollId, optionId);
   }
 }
 

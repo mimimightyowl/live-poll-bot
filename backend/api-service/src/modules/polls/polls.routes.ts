@@ -137,8 +137,9 @@ router.delete(
   '/:pollId/options/:optionId',
   async (req: Request, res: Response, next: NextFunction) => {
     try {
+      const pollId = Number(req.params.pollId);
       const optionId = Number(req.params.optionId);
-      await pollService.deletePollOption(optionId);
+      await pollService.deletePollOption(pollId, optionId);
       res.json({ success: true, message: 'Option deleted' });
     } catch (err) {
       next(err);
