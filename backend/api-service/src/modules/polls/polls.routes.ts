@@ -101,4 +101,49 @@ router.get(
   }
 );
 
+// GET /api/polls/:id/options
+router.get(
+  '/:id/options',
+  validate({ params: paramsSchema }),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const pollId = req.params.id as unknown as number;
+      const options = await pollService.getPollOptions(pollId);
+      res.json({ success: true, data: options });
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+// POST /api/polls/:id/options
+router.post(
+  '/:id/options',
+  validate({ params: paramsSchema }),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const pollId = req.params.id as unknown as number;
+      const { text } = req.body;
+      const option = await pollService.addPollOption(pollId, text);
+      res.status(201).json({ success: true, data: option });
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+// DELETE /api/polls/:pollId/options/:optionId
+router.delete(
+  '/:pollId/options/:optionId',
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const optionId = Number(req.params.optionId);
+      await pollService.deletePollOption(optionId);
+      res.json({ success: true, message: 'Option deleted' });
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
 export default router;

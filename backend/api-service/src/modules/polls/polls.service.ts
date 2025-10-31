@@ -1,5 +1,11 @@
 import pollRepository from './polls.repository';
-import { Poll, CreatePollDto, UpdatePollDto, PollResults } from './polls.types';
+import {
+  Poll,
+  CreatePollDto,
+  UpdatePollDto,
+  PollResults,
+  PollOption,
+} from './polls.types';
 
 class PollService {
   async getAllPolls(): Promise<Poll[]> {
@@ -24,6 +30,18 @@ class PollService {
 
   async getPollResults(id: number): Promise<PollResults> {
     return pollRepository.getPollResults(id);
+  }
+
+  async getPollOptions(pollId: number): Promise<PollOption[]> {
+    return pollRepository.getPollOptions(pollId);
+  }
+
+  async addPollOption(pollId: number, text: string): Promise<PollOption> {
+    return pollRepository.addPollOption(pollId, text);
+  }
+
+  async deletePollOption(optionId: number): Promise<void> {
+    return pollRepository.deletePollOption(optionId);
   }
 }
 
