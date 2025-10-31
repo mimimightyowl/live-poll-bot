@@ -31,3 +31,9 @@ export interface PollResults {
   options: PollOptionResult[];
   total_votes: number;
 }
+
+export interface PollOption {
+  id: number;
+  poll_id: number;
+  text: string;
+}

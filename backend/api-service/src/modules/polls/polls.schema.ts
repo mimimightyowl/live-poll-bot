@@ -31,3 +31,23 @@ export const paramsSchema = z.object({
 
 // Schema for partial update (all fields optional)
 export const patchPollSchema = updatePollSchema.partial();
+
+// Schema for validating poll option text
+export const addPollOptionSchema = z.object({
+  text: z
+    .string()
+    .min(1, 'Option text cannot be empty')
+    .max(255, 'Option text must be at most 255 characters'),
+});
+
+// Schema for validating poll option deletion parameters
+export const pollOptionParamsSchema = z.object({
+  pollId: z
+    .string()
+    .regex(/^\d+$/, 'Poll ID must be a positive number')
+    .transform(val => parseInt(val, 10)),
+  optionId: z
+    .string()
+    .regex(/^\d+$/, 'Option ID must be a positive number')
+    .transform(val => parseInt(val, 10)),
+});

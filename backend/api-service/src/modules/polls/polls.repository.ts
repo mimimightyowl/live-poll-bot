@@ -5,6 +5,7 @@ import {
   UpdatePollDto,
   PollResults,
   PollOptionResult,
+  PollOption,
 } from './polls.types';
 import AppError from '../../shared/errors/app-error';
 
@@ -119,6 +120,35 @@ class PollsRepository {
       options,
       total_votes: totalVotes,
     };
+  }
+
+  async getPollOptions(pollId: number): Promise<PollOption[]> {
+    const result = await pool.query(
+      'SELECT * FROM poll_options WHERE poll_id = $1',
+      [pollId]
+    );
+    return result.rows;
+  }
+
+  async addPollOption(pollId: number, text: string): Promise<PollOption> {
+    const result = await pool.query(
+      'INSERT INTO poll_options (poll_id, text) VALUES ($1, $2) RETURNING *',
+      [pollId, text]
+    );
+    return result.rows[0];
+  }
+
+  async deletePollOption(pollId: number, optionId: number): Promise<void> {
+    const result = await pool.query(
+      'DELETE FROM poll_options WHERE id = $1 AND poll_id = $2 RETURNING *',
+      [optionId, pollId]
+    );
+    if (result.rows.length === 0) {
+      throw new AppError(
+        'Poll option not found or does not belong to the specified poll',
+        404
+      );
+    }
   }
 }
 
