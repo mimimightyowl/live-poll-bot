@@ -9,6 +9,8 @@
     "migrate": "node -r ts-node/register -r ./src/shared/env-loader node_modules/.bin/node-pg-migrate -m src/shared/infra/migrations up",
     "migrate:down": "node -r ts-node/register -r ./src/shared/env-loader node_modules/.bin/node-pg-migrate -m src/shared/infra/migrations down",
     "migrate:create": "node -r ts-node/register -r ./src/shared/env-loader node_modules/.bin/node-pg-migrate create -m src/shared/infra/migrations --migration-file-language sql",
+    "seed:dev": "node -r ts-node/register -r ./src/shared/env-loader -e \"require('pg').Pool({host:process.env.DB_HOST,port:process.env.DB_PORT,user:process.env.DB_USER,password:process.env.DB_PASSWORD,database:process.env.DB_NAME}).query(require('fs').readFileSync('src/shared/infra/seeds/dev-seed.sql','utf8')).then(()=>console.log('✅ Dev seed data loaded successfully')).catch(e=>{console.error('❌ Error loading seed data:',e.message);process.exit(1)})\"",
+    "db:reset:dev": "npm run migrate:down && npm run migrate && npm run seed:dev",
     "docker:dev:up": "docker-compose -f ../../docker/docker-compose.dev.yml up -d",
     "docker:dev:down": "docker-compose -f ../../docker/docker-compose.dev.yml down",
     "dev:stack": "npm run docker:dev:up && docker-compose -f ../../docker/docker-compose.dev.yml logs -f api",
