@@ -1,0 +1,31 @@
+<!--?xml version="1.0" encoding="UTF-8"?-->
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="titleDesc">
+  <title id="titleDesc">Polls &amp; Votes</title>
+  <desc>Blue circular favicon with a white ballot box and check mark representing polls and votes.</desc>
+
+  <!-- background circle -->
+  <rect width="64" height="64" rx="12" ry="12" fill="#0D47A1"></rect>
+
+  <!-- subtle inner circle for depth -->
+  <circle cx="32" cy="32" r="26" fill="#1976D2" opacity="0.95"></circle>
+
+  <!-- ballot box body -->
+  <rect x="14" y="22" width="36" height="20" rx="3" ry="3" fill="#fff"></rect>
+
+  <!-- slot -->
+  <rect x="22" y="18" width="20" height="6" rx="2" ry="2" fill="#fff"></rect>
+  <rect x="26" y="16.5" width="12" height="2" rx="1" ry="1" fill="#1976D2"></rect>
+
+  <!-- check-mark on a small ballot card (tilted) -->
+  <g transform="translate(38,24) rotate(12)">
+    <rect x="-10" y="-8" width="14" height="10" rx="1.5" ry="1.5" fill="#1976D2"></rect>
+    <path d="M-7 -3 L-3 1 L 6 -6" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+  </g>
+
+  <!-- three small bars on the left to hint "poll options" -->
+  <g transform="translate(18,26)">
+    <rect x="0" y="0" width="8" height="2.6" rx="1" fill="#0D47A1" opacity="0.95"></rect>
+    <rect x="0" y="5" width="12" height="2.6" rx="1" fill="#0D47A1" opacity="0.95"></rect>
+    <rect x="0" y="10" width="6" height="2.6" rx="1" fill="#0D47A1" opacity="0.95"></rect>
+  </g>
+</svg>
