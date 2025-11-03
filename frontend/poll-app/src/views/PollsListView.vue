@@ -12,21 +12,16 @@
       <p class="text-red-600">{{ error }}</p>
     </div>
 
-    <PollList
-      v-else
-      :polls="polls"
-      @delete="handleDelete"
-      @view-results="handleViewResults"
-    />
+    <PollsList v-else :polls="polls" @start-vote="handleStartVote" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import PollList from '@/components/PollList.vue';
 import { pollsApi } from '@/api/polls';
-import type { Poll } from '@/types';
+import PollsList from '@/components/PollsList.vue';
+import type { Poll } from '@shared/types';
 
 const router = useRouter();
 const polls = ref<Poll[]>([]);
@@ -38,26 +33,18 @@ const fetchPolls = async () => {
     loading.value = true;
     error.value = null;
     polls.value = await pollsApi.getAll();
+    console.log({ polls: polls.value.length });
   } catch (err: any) {
     error.value = err.message || 'Failed to load polls';
+    console.error('Failed to load results:', error.value);
   } finally {
     loading.value = false;
   }
 };
 
-const handleDelete = async (id: number) => {
-  if (!confirm('Are you sure you want to delete this poll?')) return;
-
-  try {
-    await pollsApi.delete(id);
-    polls.value = polls.value.filter(poll => poll.id !== id);
-  } catch (err: any) {
-    alert(err.message || 'Failed to delete poll');
-  }
-};
-
-const handleViewResults = (id: number) => {
-  router.push(`/poll/${id}`);
+const handleStartVote = (id: number) => {
+  router.push(`/poll/${id}/vote`);
+  console.log('Start vote for poll:', id);
 };
 
 onMounted(fetchPolls);

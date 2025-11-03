@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-4">
     <div v-if="polls.length === 0" class="card text-center py-12">
-      <p class="text-gray-600">No polls found. Create your first poll!</p>
+      <p class="text-gray-600">No polls found.</p>
     </div>
 
     <div
@@ -22,12 +22,9 @@
         <div class="flex gap-2 ml-4">
           <button
             class="btn-primary text-sm"
-            @click="$emit('view-results', poll.id)"
+            @click="$emit('start-vote', poll.id)"
           >
-            View Details
-          </button>
-          <button class="btn-danger text-sm" @click="$emit('delete', poll.id)">
-            Delete
+            Start Vote
           </button>
         </div>
       </div>
@@ -36,15 +33,10 @@
 </template>
 
 <script setup lang="ts">
-import type { Poll } from '@/types';
-import { formatDate } from '@/utils/helpers';
+import type { Poll } from '@shared/types';
+import { formatDate } from '@shared/utils';
 
 defineProps<{
   polls: Poll[];
-}>();
-
-defineEmits<{
-  delete: [id: number];
-  'view-results': [id: number];
 }>();
 </script>

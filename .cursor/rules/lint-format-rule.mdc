@@ -1,0 +1,5 @@
+---
+alwaysApply: true
+---
+
+don't check lint and prettier formatting since we use pre-commit hook for this

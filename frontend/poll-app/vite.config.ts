@@ -6,4 +6,10 @@ export default defineConfig({
   server: {
     port: 5174,
   },
+  resolve: {
+    alias: {
+      '@': '/src',
+      '@shared': '/../shared/src',
+    },
+  },
 });

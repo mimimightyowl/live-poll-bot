@@ -5,26 +5,23 @@
         <div class="flex justify-between h-16">
           <div class="flex items-center">
             <router-link to="/" class="text-xl font-bold text-primary-600">
-              Poll Admin
-            </router-link>
-          </div>
-          <div class="flex items-center space-x-4">
-            <router-link
-              to="/"
-              class="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium"
-            >
-              Polls
-            </router-link>
-            <router-link to="/create" class="btn-primary text-sm">
-              Create Poll
+              Polls & Votes
             </router-link>
           </div>
         </div>
       </div>
+      <div class="flex items-center space-x-4"></div>
     </nav>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <router-view />
     </main>
+
+    <!-- Dev Mode: User Info Display -->
+    <DevUserInfo />
   </div>
 </template>
+
+<script setup lang="ts">
+import DevUserInfo from '@/components/DevUserInfo.vue';
+</script>
