@@ -100,3 +100,68 @@ The migration configuration is stored in:
 Environment variables are automatically loaded from `.env` file.
 
 **Note**: Your project uses SQL migrations (not TypeScript). Delete the old `.ts` migration file if it exists.
+
+## Seeding Development Data
+
+The project includes seed data for development purposes located in `src/shared/infra/seeds/dev-seed.sql`.
+
+### Loading Seed Data
+
+To load the development seed data into your database:
+
+```bash
+npm run seed:dev
+```
+
+This will populate your database with:
+
+- **3 users**: admin, alice, bob (all with `password_hash='dev_password'`)
+- **4 polls**: Various example polls including one with votes
+- **14 poll options**: Multiple options for each poll
+- **3 votes**: Sample votes on the first poll
+
+### Resetting Database
+
+To completely reset your development database (rollback all migrations, re-apply them, and load seed data):
+
+```bash
+npm run db:reset:dev
+```
+
+This command will:
+
+1. Rollback the last migration
+2. Re-apply all migrations
+3. Load the seed data
+
+**⚠️ Warning**: This will delete all existing data in your development database.
+
+### Seed Data Structure
+
+The seed file creates the following data:
+
+**Users:**
+
+- `admin` (id: 1) - email: admin@example.com, telegram_id: 123456789
+- `alice` (id: 2) - email: alice@example.com, telegram_id: 987654321
+- `bob` (id: 3) - email: bob@example.com
+
+**Polls:**
+
+1. "What's your favorite programming language?" (created by admin, **has votes**)
+   - Options: JavaScript, Python, TypeScript, Go
+   - Votes: admin→TypeScript, alice→Python, bob→TypeScript
+2. "Best time for team meeting?" (created by admin)
+   - Options: 9:00 AM, 2:00 PM, 4:00 PM
+3. "Preferred communication tool?" (created by alice)
+   - Options: Slack, Discord, Telegram, Microsoft Teams
+4. "Where should we go for team lunch?" (created by bob)
+   - Options: Italian Restaurant, Sushi Bar, Food Court
+
+### Modifying Seed Data
+
+To modify the seed data:
+
+1. Edit `src/shared/infra/seeds/dev-seed.sql`
+2. Run `npm run seed:dev` to reload the data (it will clear existing data first)
+3. Commit your changes if the seed data should be shared with the team
