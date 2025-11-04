@@ -1,23 +1,20 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
-import PollsView from '../views/PollsView.vue';
-import CreatePollView from '../views/CreatePollView.vue';
-import PollDetailsView from '../views/PollDetailsView.vue';
 
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
     name: 'Polls',
-    component: PollsView,
+    component: () => import('@/views/PollsView.vue'),
   },
   {
     path: '/create',
     name: 'CreatePoll',
-    component: CreatePollView,
+    component: () => import('@/views/CreatePollView.vue'),
   },
   {
     path: '/poll/:id',
     name: 'PollDetails',
-    component: PollDetailsView,
+    component: () => import('@/views/PollDetailsView.vue'),
     props: true,
   },
 ];

@@ -1,8 +1,8 @@
 <template>
   <div>
     <div class="mb-6">
-      <button @click="$router.push('/')" class="btn-secondary mb-4">
-        ← Back to Polls
+      <button class="btn-secondary mb-4" @click="$router.push('/')">
+        Back to Polls
       </button>
 
       <div v-if="loading" class="text-center py-12">
@@ -26,7 +26,6 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <!-- Poll Options Manager -->
           <div class="card">
             <h2 class="text-xl font-semibold mb-4">Manage Options</h2>
             <PollOptionManager
@@ -36,7 +35,6 @@
             />
           </div>
 
-          <!-- Poll Results -->
           <div class="card">
             <h2 class="text-xl font-semibold mb-4">Results</h2>
             <PollResults v-if="results" :results="results" />
@@ -55,9 +53,9 @@ import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import PollOptionManager from '@/components/PollOptionManager.vue';
 import PollResults from '@/components/PollResults.vue';
-import { pollsApi } from '@/api/polls';
-import { formatDate } from '@/utils/helpers';
-import type { Poll, PollResults as PollResultsType } from '@/types';
+import { pollsApi } from '@shared/api/polls';
+import { formatDate } from '@shared/utils';
+import type { Poll, PollResults as PollResultsType } from '@shared/types';
 
 const route = useRoute();
 const poll = ref<Poll | null>(null);
@@ -92,4 +90,3 @@ onMounted(async () => {
   await fetchResults();
 });
 </script>
-

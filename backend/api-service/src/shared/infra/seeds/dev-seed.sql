@@ -17,10 +17,10 @@ ALTER SEQUENCE votes_id_seq RESTART WITH 1;
 
 -- Insert users
 -- Note: All users have password_hash='dev_password' for easy testing
-INSERT INTO users (username, email, password_hash, full_name, telegram_id, created_at, updated_at) VALUES
-  ('admin', 'admin@example.com', 'dev_password', 'Admin User', '123456789', NOW(), NOW()),
-  ('alice', 'alice@example.com', 'dev_password', 'Alice Johnson', '987654321', NOW(), NOW()),
-  ('bob', 'bob@example.com', 'dev_password', 'Bob Smith', NULL, NOW(), NOW());
+INSERT INTO users (username, email, password_hash, created_at, updated_at) VALUES
+  ('admin', 'admin@example.com', 'dev_password', NOW(), NOW()),
+  ('alice', 'alice@example.com', 'dev_password', NOW(), NOW()),
+  ('bob', 'bob@example.com', 'dev_password', NOW(), NOW());
 
 -- Insert polls
 INSERT INTO polls (question, created_by, created_at, updated_at) VALUES

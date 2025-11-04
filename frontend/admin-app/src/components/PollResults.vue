@@ -29,7 +29,6 @@
           </div>
         </div>
 
-        <!-- Progress Bar -->
         <div class="w-full bg-gray-200 rounded-full h-2.5">
           <div
             class="bg-primary-600 h-2.5 rounded-full transition-all duration-300"
@@ -44,8 +43,8 @@
 </template>
 
 <script setup lang="ts">
-import type { PollResults } from '@/types';
-import { calculatePercentage as calcPercentage } from '@/utils/helpers';
+import type { PollResults } from '@shared/types';
+import { calculatePercentage as calcPercentage } from '@shared/utils';
 
 const props = defineProps<{
   results: PollResults;
@@ -55,4 +54,3 @@ const calculatePercentage = (value: number): number => {
   return calcPercentage(value, props.results.total_votes);
 };
 </script>
-

@@ -89,7 +89,6 @@ const fetchPoll = async () => {
 
     poll.value = await pollsApi.getWithOptions(pollId.value);
 
-    // Check if user has already voted
     if (hasVotedForPoll(pollId.value)) {
       showResults.value = true;
     }
@@ -102,7 +101,6 @@ const fetchPoll = async () => {
 };
 
 const handleVoted = () => {
-  // Mark as voted in localStorage
   markPollAsVoted(pollId.value);
   showResults.value = true;
 };

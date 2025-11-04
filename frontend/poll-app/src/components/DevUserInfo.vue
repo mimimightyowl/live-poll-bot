@@ -98,9 +98,7 @@ const clearVoted = () => {
   }
 };
 
-// Update user info when it changes
 onMounted(() => {
-  // Check for changes every second
   setInterval(() => {
     const current = getMockUserInfo();
     if (current.id !== userInfo.value.id) {

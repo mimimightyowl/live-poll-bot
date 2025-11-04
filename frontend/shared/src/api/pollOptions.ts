@@ -1,5 +1,5 @@
-import type { PollOption, CreatePollOptionDto, ApiResponse } from '@/types';
-import { apiClient } from '@shared/api/client';
+import { apiClient } from './client';
+import type { PollOption, CreatePollOptionDto, ApiResponse } from '../types';
 
 export const pollOptionsApi = {
   async getByPollId(pollId: number): Promise<PollOption[]> {
@@ -18,7 +18,7 @@ export const pollOptionsApi = {
     return response.data.data;
   },
 
-  async delete(pollId: number, poll_option_id: number): Promise<void> {
-    await apiClient.delete(`/polls/${pollId}/options/${poll_option_id}`);
+  async delete(pollId: number, pollOptionId: number): Promise<void> {
+    await apiClient.delete(`/polls/${pollId}/options/${pollOptionId}`);
   },
 };

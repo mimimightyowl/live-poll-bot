@@ -25,8 +25,8 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import PollList from '@/components/PollList.vue';
-import { pollsApi } from '@/api/polls';
-import type { Poll } from '@/types';
+import { pollsApi } from '@shared/api/polls';
+import type { Poll } from '@shared/types';
 
 const router = useRouter();
 const polls = ref<Poll[]>([]);

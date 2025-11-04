@@ -1,11 +1,11 @@
-import { apiClient } from '@shared/api/client';
+import { apiClient } from './client';
 import type {
   Poll,
   CreatePollDto,
   UpdatePollDto,
   PollResults,
   ApiResponse,
-} from '@/types';
+} from '../types';
 
 export const pollsApi = {
   async getAll(): Promise<Poll[]> {

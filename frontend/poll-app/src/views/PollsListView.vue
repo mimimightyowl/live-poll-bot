@@ -33,7 +33,6 @@ const fetchPolls = async () => {
     loading.value = true;
     error.value = null;
     polls.value = await pollsApi.getAll();
-    console.log({ polls: polls.value.length });
   } catch (err: any) {
     error.value = err.message || 'Failed to load polls';
     console.error('Failed to load results:', error.value);
@@ -44,7 +43,6 @@ const fetchPolls = async () => {
 
 const handleStartVote = (id: number) => {
   router.push(`/poll/${id}/vote`);
-  console.log('Start vote for poll:', id);
 };
 
 onMounted(fetchPolls);
