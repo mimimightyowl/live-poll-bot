@@ -36,8 +36,8 @@
 </template>
 
 <script setup lang="ts">
-import type { Poll } from '@/types';
-import { formatDate } from '@/utils/helpers';
+import type { Poll } from '@shared/types';
+import { formatDate } from '@shared/utils';
 
 defineProps<{
   polls: Poll[];

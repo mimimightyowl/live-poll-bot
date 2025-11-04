@@ -1,7 +1,6 @@
 <template>
   <div>
-    <!-- Add Option Form -->
-    <form @submit.prevent="handleAdd" class="mb-6">
+    <form class="mb-6" @submit.prevent="handleAdd">
       <div class="flex gap-2">
         <input
           v-model="newOptionText"
@@ -16,7 +15,6 @@
       </div>
     </form>
 
-    <!-- Options List -->
     <div v-if="loading" class="text-center py-4">
       <p class="text-gray-600 text-sm">Loading options...</p>
     </div>
@@ -33,8 +31,8 @@
       >
         <span class="text-gray-900">{{ option.text }}</span>
         <button
-          @click="handleDelete(props.pollId, option.id)"
           class="text-red-600 hover:text-red-800 text-sm font-medium"
+          @click="handleDelete(props.pollId, option.id)"
         >
           Delete
         </button>
@@ -45,8 +43,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { pollOptionsApi } from '@/api/pollOptions';
-import type { PollOption } from '@/types';
+import { pollOptionsApi } from '@shared/api/pollOptions';
+import type { PollOption } from '@shared/types';
 
 const props = defineProps<{
   pollId: number;
@@ -101,4 +99,3 @@ const handleDelete = async (pollId: number, poll_option_id: number) => {
 
 onMounted(fetchOptions);
 </script>
-

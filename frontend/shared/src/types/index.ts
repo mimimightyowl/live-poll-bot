@@ -85,7 +85,7 @@ export interface ApiError {
 
 // WebSocket types
 export interface WebSocketMessage<T = any> {
-  type: string;
+  type: 'poll_update' | 'subscribe' | 'unsubscribe' | 'error';
   payload: T;
 }
 

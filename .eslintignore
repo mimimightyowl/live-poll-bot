@@ -9,33 +9,37 @@ build/
 .nuxt/
 out/
 **/*.min.js
-**/*.min.css
 
 # Testing
 coverage/
 .nyc_output/
 
-# Lock files
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
+# Environment
+.env
+.env.local
+.env.*.local
 
 # Logs
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 
 # IDE
 .vscode/
 .idea/
+*.swp
+*.swo
+*~
 
 # OS
 .DS_Store
+Thumbs.db
 
-# Generated files
+# Misc
 *.tsbuildinfo
 .cache/
+temp/
+tmp/
 
-# Proto files (might have specific formatting)
-proto/
-
-# Markdown files in node_modules
-**/node_modules/**/*.md

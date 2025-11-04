@@ -4,6 +4,7 @@ import type {
   WebSocketMessage,
   PollUpdateMessage,
 } from '@shared/types';
+import { getWebSocketUrl } from '@/utils/getWebSocketUrl';
 
 interface UseWebSocketOptions {
   pollId?: number;
@@ -21,16 +22,6 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
   let ws: WebSocket | null = null;
   let reconnectTimer: number | null = null;
 
-  const getWebSocketUrl = (): string => {
-    try {
-      // @ts-ignore - import.meta.env is defined in Vite environment
-      const baseUrl = import.meta.env?.VITE_WS_URL || 'ws://localhost:3002';
-      return baseUrl;
-    } catch {
-      return 'ws://localhost:3002';
-    }
-  };
-
   const connect = () => {
     try {
       const wsUrl = getWebSocketUrl();
@@ -42,7 +33,6 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
         isReconnecting.value = false;
         error.value = null;
 
-        // Subscribe to poll updates if pollId is provided
         if (pollId) {
           subscribe(pollId);
         }
@@ -69,7 +59,6 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
         console.log('WebSocket closed');
         isConnected.value = false;
 
-        // Attempt to reconnect
         if (!isReconnecting.value) {
           scheduleReconnect();
         }
@@ -147,6 +136,12 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
           onUpdate(updateMessage.results);
         }
         break;
+      case 'subscribe':
+        console.log('Subscribed to poll:', message.payload.poll_id);
+        break;
+      case 'unsubscribe':
+        console.log('Unsubscribed from poll:', message.payload.poll_id);
+        break;
       case 'error':
         console.error('WebSocket error message:', message.payload);
         error.value = message.payload.message || 'Unknown error';
@@ -165,10 +160,8 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
     ws.send(JSON.stringify(message));
   };
 
-  // Auto-connect
   connect();
 
-  // Cleanup on unmount
   onUnmounted(() => {
     disconnect();
   });

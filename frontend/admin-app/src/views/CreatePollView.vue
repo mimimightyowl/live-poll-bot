@@ -13,8 +13,8 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
 import PollForm from '@/components/PollForm.vue';
-import { pollsApi } from '@/api/polls';
-import type { CreatePollDto } from '@/types';
+import { pollsApi } from '@shared/api/polls';
+import type { CreatePollDto } from '@shared/types';
 
 const router = useRouter();
 
@@ -31,4 +31,3 @@ const handleCancel = () => {
   router.push('/');
 };
 </script>
-

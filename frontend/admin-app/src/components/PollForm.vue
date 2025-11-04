@@ -38,7 +38,7 @@
 
       <div class="flex gap-3 pt-4">
         <button type="submit" class="btn-primary">Create Poll</button>
-        <button type="button" @click="$emit('cancel')" class="btn-secondary">
+        <button type="button" class="btn-secondary" @click="$emit('cancel')">
           Cancel
         </button>
       </div>
@@ -48,7 +48,7 @@
 
 <script setup lang="ts">
 import { reactive } from 'vue';
-import type { CreatePollDto } from '@/types';
+import type { CreatePollDto } from '@shared/types';
 
 const emit = defineEmits<{
   submit: [data: CreatePollDto];
@@ -64,4 +64,3 @@ const handleSubmit = () => {
   emit('submit', { ...formData });
 };
 </script>
-

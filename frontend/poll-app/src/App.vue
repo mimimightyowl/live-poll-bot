@@ -17,7 +17,6 @@
       <router-view />
     </main>
 
-    <!-- Dev Mode: User Info Display -->
     <DevUserInfo />
   </div>
 </template>

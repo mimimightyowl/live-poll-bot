@@ -42,6 +42,16 @@ module.exports = [
         exports: 'readonly',
       },
     },
-    ignores: ['node_modules/', 'dist/', 'build/', '*.min.js', 'coverage/'],
+  },
+  {
+    ignores: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/build/**',
+      '**/*.min.js',
+      '**/coverage/**',
+      '**/.next/**',
+      '**/.nuxt/**',
+    ],
   },
 ];

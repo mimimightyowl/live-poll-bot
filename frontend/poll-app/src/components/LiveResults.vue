@@ -73,7 +73,6 @@ const results = ref<PollResults | null>(null);
 const loading = ref(true);
 const error = ref<string | null>(null);
 
-// WebSocket connection
 const { isConnected: wsConnected } = useWebSocket({
   pollId: props.pollId,
   onUpdate: (updatedResults) => {
@@ -105,7 +104,6 @@ const fetchResults = async () => {
   }
 };
 
-// Watch for pollId changes
 watch(() => props.pollId, () => {
   fetchResults();
 });
