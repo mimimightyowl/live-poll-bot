@@ -37,7 +37,8 @@ const dbConfig = parseDatabaseUrl();
 
 export const env = {
   // Server
-  PORT: parseInt(process.env.PORT || '3000', 10),
+  WS_PORT: parseInt(process.env.WS_PORT || '3001', 10),
+  HTTP_PORT: parseInt(process.env.HTTP_PORT || '3002', 10),
   NODE_ENV: process.env.NODE_ENV || 'development',
 
   // Database (распарсенные значения)
@@ -52,8 +53,4 @@ export const env = {
   DATABASE_URL:
     process.env.DATABASE_URL ||
     `postgresql://${dbConfig.user}:${dbConfig.password}@${dbConfig.host}:${dbConfig.port}/${dbConfig.database}`,
-
-  // Realtime service
-  REALTIME_SERVICE_URL:
-    process.env.REALTIME_SERVICE_URL || 'http://localhost:3002',
 };

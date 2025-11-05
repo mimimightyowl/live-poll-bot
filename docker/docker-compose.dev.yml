@@ -59,6 +59,7 @@ services:
       DB_PASSWORD: secret
       DB_NAME: main_dev
       DATABASE_URL: postgresql://app:secret@db:5432/main_dev
+      REALTIME_SERVICE_URL: http://realtime:3002
     ports:
       - '3000:3000'
     command: sh -c "npm ci && npm run dev"
@@ -70,9 +71,37 @@ services:
     networks:
       - app
 
+  realtime:
+    image: node:20-alpine
+    container_name: app-realtime-dev
+    working_dir: /app
+    volumes:
+      - ../backend/realtime-service:/app
+      - realtime-node-modules:/app/node_modules
+    environment:
+      NODE_ENV: development
+      WS_PORT: 3001
+      HTTP_PORT: 3002
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: app
+      DB_PASSWORD: secret
+      DB_NAME: main_dev
+      DATABASE_URL: postgresql://app:secret@db:5432/main_dev
+    ports:
+      - '3001:3001'
+      - '3002:3002'
+    command: sh -c "npm ci && npm run dev"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - app
+
 volumes:
   db-dev-data:
   api-node-modules:
+  realtime-node-modules:
 
 networks:
   app:

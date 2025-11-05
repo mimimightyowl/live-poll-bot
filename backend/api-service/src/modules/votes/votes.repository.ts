@@ -69,6 +69,19 @@ class VotesRepository {
       throw new AppError('Vote not found', 404);
     }
   }
+
+  async getPollIdByOptionId(pollOptionId: number): Promise<number> {
+    const result = await pool.query(
+      'SELECT poll_id FROM poll_options WHERE id = $1',
+      [pollOptionId]
+    );
+
+    if (result.rows.length === 0) {
+      throw new AppError('Poll option not found', 404);
+    }
+
+    return result.rows[0].poll_id;
+  }
 }
 
 export default new VotesRepository();

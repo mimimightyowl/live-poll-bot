@@ -3,7 +3,7 @@
  * @returns {string} The WebSocket URL
  */
 
-const DEFAULT_WS_URL = 'ws://localhost:3002';
+const DEFAULT_WS_URL = 'ws://localhost:3001';
 
 export const getWebSocketUrl = (): string => {
   try {
