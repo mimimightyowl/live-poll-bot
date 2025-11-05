@@ -17,11 +17,8 @@ class Logger {
     }
   }
 
-  warn(message: string, error?: Error): void {
+  warn(message: string): void {
     console.warn(this.formatMessage('warn', message));
-    if (error) {
-      console.warn(error);
-    }
   }
 
   debug(message: string): void {
