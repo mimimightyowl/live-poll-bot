@@ -21,7 +21,7 @@ services:
       - app
 
   migrate:
-    image: node:20-alpine
+    image: node:24-alpine
     container_name: app-migrate-dev
     working_dir: /app
     volumes:
@@ -44,7 +44,7 @@ services:
       - app
 
   api:
-    image: node:20-alpine
+    image: node:24-alpine
     container_name: app-api-dev
     working_dir: /app
     volumes:
@@ -72,7 +72,7 @@ services:
       - app
 
   realtime:
-    image: node:20-alpine
+    image: node:24-alpine
     container_name: app-realtime-dev
     working_dir: /app
     volumes:
