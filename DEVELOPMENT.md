@@ -44,6 +44,9 @@ npm run dev:api
 # Start only Realtime service
 npm run dev:realtime
 
+# Start only Bot service
+npm run dev:bot
+
 # Start backend services (alias for npm run dev)
 npm run dev:backend
 
@@ -65,6 +68,9 @@ npm run build:api
 
 # Build only Realtime service
 npm run build:realtime
+
+# Build only Bot service
+npm run build:bot
 ```
 
 ### Database Management
@@ -120,9 +126,9 @@ npm run format:check
 ```
 live-poll-bot/
 ├── backend/
-│   ├── api-service/          # REST API
-│   ├── realtime-service/     # WebSocket server
-│   └── bot-service/          # Telegram bot (future)
+│   ├── api-service/          # REST API + gRPC Server
+│   ├── realtime-service/     # WebSocket server + gRPC Server
+│   └── bot-service/          # Telegram bot + gRPC Client
 ├── frontend/
 │   ├── poll-app/             # User-facing app
 │   └── admin-app/            # Admin interface
@@ -170,15 +176,31 @@ npm run build
 npm start
 ```
 
+### Bot Service
+
+```bash
+cd backend/bot-service
+
+# Development
+npm run dev
+
+# Build
+npm run build
+
+# Production
+npm start
+```
+
 ## 🌐 Service Ports
 
-| Service       | Port | URL                         |
-| ------------- | ---- | --------------------------- |
-| API Service   | 3000 | http://localhost:3000       |
-| Realtime WS   | 3001 | ws://localhost:3001         |
-| Realtime HTTP | 3002 | http://localhost:3002       |
-| PostgreSQL    | 5432 | postgresql://localhost:5432 |
-| Frontend      | 5173 | http://localhost:5173       |
+| Service       | REST/HTTP | gRPC  | WebSocket | URL                         |
+| ------------- | --------- | ----- | --------- | --------------------------- |
+| API Service   | 3000      | 50051 | -         | http://localhost:3000       |
+| Realtime WS   | -         | -     | 3001      | ws://localhost:3001         |
+| Realtime HTTP | 3002      | 50052 | -         | http://localhost:3002       |
+| Bot Service   | -         | -     | -         | Telegram Bot                |
+| PostgreSQL    | -         | -     | -         | postgresql://localhost:5432 |
+| Frontend      | 5174      | -     | -         | http://localhost:5174       |
 
 ## 📝 Development Workflow
 
@@ -188,10 +210,13 @@ npm start
 # Terminal 1: Start database
 npm run docker:db
 
-# Terminal 2: Start backend services
+# Terminal 2: Start backend services (api + realtime)
 npm run dev
 
-# Terminal 3: Start frontend
+# Terminal 3: Start bot service (optional)
+npm run dev:bot
+
+# Terminal 4: Start frontend
 npm run dev:frontend
 ```
 
@@ -256,8 +281,9 @@ npm install
 1. **Always start with database**: `npm run docker:db`
 2. **Run migrations**: `npm run migrate` after pulling new code
 3. **Use `npm run dev`**: Runs both API and Realtime in parallel
-4. **Check logs**: Services show colored output (blue=api, magenta=realtime)
-5. **Graceful shutdown**: Use Ctrl+C to stop services properly
+4. **Bot Service**: Requires `TELEGRAM_BOT_TOKEN` environment variable
+5. **Check logs**: Services show colored output (blue=api, magenta=realtime)
+6. **Graceful shutdown**: Use Ctrl+C to stop services properly
 
 ## 📚 Additional Resources
 
@@ -269,6 +295,7 @@ npm install
 ## 🆘 Getting Help
 
 1. Check service logs: `npm run docker:logs`
-2. Verify ports are free: `lsof -i :3000 -i :3001 -i :3002`
+2. Verify ports are free: `lsof -i :3000 -i :3001 -i :3002 -i :50051 -i :50052`
 3. Check database: `docker exec app-db psql -U app -d main_dev -c "SELECT 1;"`
 4. Review environment files: `.env.development` in each service
+5. Bot Service: Ensure `TELEGRAM_BOT_TOKEN` is set in `.env.development`

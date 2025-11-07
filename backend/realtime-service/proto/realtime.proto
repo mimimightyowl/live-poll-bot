@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package realtime;
+
+service RealtimeService {
+  rpc NotifyPollUpdate(NotifyPollUpdateRequest) returns (NotifyPollUpdateResponse);
+}
+
+message NotifyPollUpdateRequest {
+  int32 poll_id = 1;
+}
+
+message NotifyPollUpdateResponse {
+  bool success = 1;
+  int32 poll_id = 2;
+  int32 subscriber_count = 3;
+}
+
