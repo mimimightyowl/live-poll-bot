@@ -156,6 +156,8 @@ export function startGrpcServer(port: number = 50051): void {
           if (username !== user.username || full_name !== user.full_name) {
             user = await usersService.updateUser(user.id, {
               username,
+              email: user.email, // Preserve existing email
+              telegram_id: user.telegram_id,
               full_name: full_name || null,
             });
           }
