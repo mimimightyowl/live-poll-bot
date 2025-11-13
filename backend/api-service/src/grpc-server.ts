@@ -153,12 +153,17 @@ export function startGrpcServer(port: number = 50051): void {
           });
         } else {
           // Update user info if needed
-          if (username !== user.username || full_name !== user.full_name) {
+          // Normalize empty strings to null for comparison (proto3 defaults strings to "")
+          const normalizedFullName = full_name || null;
+          if (
+            username !== user.username ||
+            normalizedFullName !== user.full_name
+          ) {
             user = await usersService.updateUser(user.id, {
               username,
               email: user.email, // Preserve existing email
               telegram_id: user.telegram_id,
-              full_name: full_name || null,
+              full_name: normalizedFullName,
             });
           }
         }
