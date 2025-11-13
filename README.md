@@ -22,8 +22,9 @@ npm run dev
 
 That's it! Your backend is running:
 
-- 🔵 API Service: http://localhost:3000
-- 🟣 Realtime Service: ws://localhost:3001
+- 🔵 API Service: http://localhost:3000 (gRPC: localhost:50051)
+- 🟣 Realtime Service: ws://localhost:3001, http://localhost:3002 (gRPC: localhost:50052)
+- 🤖 Bot Service: Telegram bot (requires TELEGRAM_BOT_TOKEN)
 - 📊 PostgreSQL: postgresql://localhost:5432
 
 ## 📖 Documentation
@@ -36,27 +37,63 @@ That's it! Your backend is running:
 ## 🏗️ Architecture
 
 ```
-┌─────────────────┐
-│   Frontend      │
-│   (poll-app)    │
-└────────┬────────┘
-         │
-    ┌────▼─────────────────┐      ┌─────────────────┐
-    │   API Service        │─────►│ Realtime Service│
-    │   Port 3000          │ HTTP │ WS:3001 HTTP:3002│
-    └────────┬─────────────┘      └────────┬─────────┘
-             │                              │
-             ▼                              ▼
-       ┌─────────────────────────────────────┐
-       │      PostgreSQL Database             │
-       │           Port 5432                  │
-       └─────────────────────────────────────┘
+┌──────────────┐
+│  Telegram    │
+│  Bot API     │
+└──────┬───────┘
+       │
+┌──────▼───────────┐
+│  BOT SERVICE     │
+│  (backend)       │
+└──────┬───────────┘
+       │ gRPC (50051)
+       │
+       ▼
+┌──────────────────────────┐      ┌──────────────────┐
+│     API SERVICE          │      │  REALTIME        │
+│  (data owner)            │─────►│  SERVICE         │
+│                          │ gRPC │                  │
+│  REST: 3000              │      │  WS: 3001        │
+│  gRPC: 50051             │      │  HTTP: 3002      │
+└──────┬───────────────────┘      │  gRPC: 50052     │
+       │                          └──────┬───────────┘
+       │                                 │
+       ▼                                 │ WebSocket
+┌──────────────┐                        │
+│ PostgreSQL   │                        │
+│   Database   │                        │
+│              │                        │
+│ • users      │                        │
+│ • polls      │                        │
+│ • poll_option│                        │
+│ • votes      │                        │
+└──────────────┘                        │
+       ▲                                 │
+       │ REST (HTTP)                    │
+       │                                 │
+┌──────┴─────────────────────────┐     │
+│          FRONTEND               │◄────┘
+│    (microfrontend apps)         │
+│                                 │
+│  ┌──────────┐  ┌──────────┐   │
+│  │POLL-APP  │  │ADMIN-APP │   │
+│  └──────────┘  └──────────┘   │
+└─────────────────────────────────┘
 ```
+
+**Key Architecture Principles:**
+
+- ✅ **Database per Service**: Only API Service has direct database access
+- ✅ **Service Communication**: Backend services communicate via gRPC
+- ✅ **Frontend Communication**: Frontend apps use REST API and WebSocket
+- ✅ **Real-time Updates**: Realtime Service gets data from API Service via gRPC
 
 ## 🎯 Key Features
 
 - ✅ Real-time poll updates via WebSocket
 - ✅ REST API for poll management
+- ✅ Telegram bot for creating polls
+- ✅ gRPC for inter-service communication
 - ✅ Microservices architecture
 - ✅ FSD (Feature-Sliced Design)
 - ✅ TypeScript throughout
@@ -71,6 +108,7 @@ npm run dev              # Start backend (api + realtime)
 npm run dev:full         # Start everything (+ frontend)
 npm run dev:api          # Start only API
 npm run dev:realtime     # Start only Realtime
+npm run dev:bot          # Start only Bot Service
 npm run dev:frontend     # Start only Frontend
 ```
 
@@ -106,6 +144,8 @@ See [DEVELOPMENT.md](./DEVELOPMENT.md) for more commands.
 - Node.js + TypeScript
 - Express.js (REST API)
 - WebSocket (ws)
+- gRPC (inter-service communication)
+- Telegram Bot API (Telegraf)
 - PostgreSQL
 - Docker
 
@@ -120,14 +160,14 @@ See [DEVELOPMENT.md](./DEVELOPMENT.md) for more commands.
 ```
 live-poll-bot/
 ├── backend/
-│   ├── api-service/         # REST API
-│   ├── realtime-service/    # WebSocket server
-│   └── bot-service/         # Telegram bot (future)
+│   ├── api-service/         # REST API + gRPC Server
+│   ├── realtime-service/   # WebSocket server + gRPC Server
+│   └── bot-service/        # Telegram bot + gRPC Client
 ├── frontend/
-│   ├── poll-app/            # User app
-│   └── admin-app/           # Admin panel
-├── docker/                  # Docker configs
-└── package.json             # Root commands
+│   ├── poll-app/           # User app
+│   └── admin-app/          # Admin panel
+├── docker/                 # Docker configs
+└── package.json            # Root commands
 ```
 
 ## 🤝 Contributing

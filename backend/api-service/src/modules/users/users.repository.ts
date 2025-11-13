@@ -19,26 +19,26 @@ class UsersRepository {
   }
 
   async create(userData: CreateUserDto): Promise<User> {
-    const { username, email, full_name, telegram_id } = userData;
+    const { username, email, telegram_id, full_name } = userData;
 
     const result = await pool.query(
-      'INSERT INTO users (username, email, full_name, telegram_id) VALUES ($1, $2, $3, $4) RETURNING *',
-      [username, email, full_name || null, telegram_id || null]
+      'INSERT INTO users (username, email, telegram_id, full_name) VALUES ($1, $2, $3, $4) RETURNING *',
+      [username, email, telegram_id || null, full_name || null]
     );
 
     return result.rows[0];
   }
 
   async update(id: number, userData: UpdateUserDto): Promise<User> {
-    const { username, email, full_name, telegram_id } = userData;
+    const { username, email, telegram_id, full_name } = userData;
 
     if (!username || !email) {
       throw new AppError('Username and email are required', 400);
     }
 
     const result = await pool.query(
-      'UPDATE users SET username=$1, email=$2, full_name=$3, telegram_id=$4, updated_at=NOW() WHERE id=$5 RETURNING *',
-      [username, email, full_name || null, telegram_id || null, id]
+      'UPDATE users SET username=$1, email=$2, telegram_id=$3, full_name=$4, updated_at=NOW() WHERE id=$5 RETURNING *',
+      [username, email, telegram_id || null, full_name || null, id]
     );
 
     if (result.rows.length === 0) {

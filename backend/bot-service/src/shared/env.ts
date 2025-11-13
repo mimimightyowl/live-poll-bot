@@ -2,10 +2,14 @@ import './env-loader';
 
 export const env = {
   // Server
-  WS_PORT: parseInt(process.env.WS_PORT || '3001', 10),
-  HTTP_PORT: parseInt(process.env.HTTP_PORT || '3002', 10),
   NODE_ENV: process.env.NODE_ENV || 'development',
+
+  // Telegram
+  TELEGRAM_BOT_TOKEN: process.env.TELEGRAM_BOT_TOKEN || '',
 
   // API Service (gRPC)
   API_SERVICE_GRPC_URL: process.env.API_SERVICE_GRPC_URL || 'localhost:50051',
+
+  // Frontend
+  FRONTEND_URL: process.env.FRONTEND_URL || 'http://localhost:5174',
 };

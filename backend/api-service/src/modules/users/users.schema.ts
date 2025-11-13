@@ -16,16 +16,16 @@ export const createUserSchema = z.object({
     .email('Invalid email format')
     .max(255, 'Email must be at most 255 characters'),
 
-  full_name: z
-    .string()
-    .max(255, 'Full name must be at most 255 characters')
-    .optional()
-    .nullable(),
-
   telegram_id: z
     .string()
     .regex(/^\d+$/, 'Telegram ID must be numeric')
     .max(20, 'Telegram ID must be at most 20 characters')
+    .optional()
+    .nullable(),
+
+  full_name: z
+    .string()
+    .max(255, 'Full name must be at most 255 characters')
     .optional()
     .nullable(),
 });
@@ -48,16 +48,16 @@ export const updateUserSchema = z.object({
     .max(255, 'Email must be at most 255 characters')
     .optional(),
 
-  full_name: z
-    .string()
-    .max(255, 'Full name must be at most 255 characters')
-    .optional()
-    .nullable(),
-
   telegram_id: z
     .string()
     .regex(/^\d+$/, 'Telegram ID must be numeric')
     .max(20, 'Telegram ID must be at most 20 characters')
+    .optional()
+    .nullable(),
+
+  full_name: z
+    .string()
+    .max(255, 'Full name must be at most 255 characters')
     .optional()
     .nullable(),
 });

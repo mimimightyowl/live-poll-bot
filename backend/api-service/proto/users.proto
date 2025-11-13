@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package users;
+
+service UsersService {
+  rpc GetOrCreateUser(GetOrCreateUserRequest) returns (GetOrCreateUserResponse);
+  rpc GetUserByTelegramId(GetUserByTelegramIdRequest) returns (GetUserByTelegramIdResponse);
+}
+
+message GetOrCreateUserRequest {
+  string telegram_id = 1;
+  string username = 2;
+  string full_name = 3;
+}
+
+message GetOrCreateUserResponse {
+  bool success = 1;
+  User user = 2;
+}
+
+message GetUserByTelegramIdRequest {
+  string telegram_id = 1;
+}
+
+message GetUserByTelegramIdResponse {
+  bool success = 1;
+  User user = 2;
+}
+
+message User {
+  int32 id = 1;
+  string username = 2;
+  string email = 3;
+  string full_name = 4;
+  string telegram_id = 5;
+  string created_at = 6;
+  string updated_at = 7;
+}
+

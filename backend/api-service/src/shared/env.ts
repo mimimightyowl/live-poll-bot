@@ -56,4 +56,6 @@ export const env = {
   // Realtime service
   REALTIME_SERVICE_URL:
     process.env.REALTIME_SERVICE_URL || 'http://localhost:3002',
+  REALTIME_SERVICE_GRPC_URL:
+    process.env.REALTIME_SERVICE_GRPC_URL || 'localhost:50052',
 };

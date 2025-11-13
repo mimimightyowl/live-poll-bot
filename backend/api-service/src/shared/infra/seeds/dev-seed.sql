@@ -16,11 +16,11 @@ ALTER SEQUENCE poll_options_id_seq RESTART WITH 1;
 ALTER SEQUENCE votes_id_seq RESTART WITH 1;
 
 -- Insert users
--- Note: All users have password_hash='dev_password' for easy testing
-INSERT INTO users (username, email, password_hash, created_at, updated_at) VALUES
-  ('admin', 'admin@example.com', 'dev_password', NOW(), NOW()),
-  ('alice', 'alice@example.com', 'dev_password', NOW(), NOW()),
-  ('bob', 'bob@example.com', 'dev_password', NOW(), NOW());
+-- Note: Users with telegram_id for bot authentication
+INSERT INTO users (username, email, telegram_id, full_name, created_at, updated_at) VALUES
+  ('admin', 'admin@example.com', '123456789', 'Admin User', NOW(), NOW()),
+  ('alice', 'alice@example.com', '987654321', 'Alice Smith', NOW(), NOW()),
+  ('bob', 'bob@example.com', NULL, 'Bob Johnson', NOW(), NOW());
 
 -- Insert polls
 INSERT INTO polls (question, created_by, created_at, updated_at) VALUES

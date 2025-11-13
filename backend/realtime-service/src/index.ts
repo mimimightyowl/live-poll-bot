@@ -4,6 +4,7 @@ import createApp from './app';
 import { env } from './config';
 import webSocketManager from './modules/websocket/websocket.manager';
 import logger from './shared/logger';
+import { startGrpcServer } from './grpc-server';
 
 // Create HTTP Express app
 const app = createApp();
@@ -22,6 +23,10 @@ httpServer.listen(env.HTTP_PORT, () => {
 
 // WebSocket server is already listening
 logger.info(`WebSocket server running on port ${env.WS_PORT}`);
+
+// Start gRPC server
+startGrpcServer(50052);
+
 logger.info(`Environment: ${env.NODE_ENV}`);
 
 // Graceful shutdown

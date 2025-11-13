@@ -1,0 +1,73 @@
+syntax = "proto3";
+
+package polls;
+
+service PollsService {
+  rpc CreatePoll(CreatePollRequest) returns (CreatePollResponse);
+  rpc GetPoll(GetPollRequest) returns (GetPollResponse);
+  rpc GetUserPolls(GetUserPollsRequest) returns (GetUserPollsResponse);
+  rpc GetPollResults(GetPollResultsRequest) returns (GetPollResultsResponse);
+}
+
+message CreatePollRequest {
+  string question = 1;
+  int32 created_by = 2;
+}
+
+message CreatePollResponse {
+  bool success = 1;
+  Poll poll = 2;
+  string message = 3;
+}
+
+message GetPollRequest {
+  int32 id = 1;
+}
+
+message GetPollResponse {
+  bool success = 1;
+  Poll poll = 2;
+}
+
+message GetUserPollsRequest {
+  int32 user_id = 1;
+}
+
+message GetUserPollsResponse {
+  bool success = 1;
+  repeated Poll polls = 2;
+}
+
+message GetPollResultsRequest {
+  int32 id = 1;
+}
+
+message GetPollResultsResponse {
+  bool success = 1;
+  PollResults results = 2;
+}
+
+message Poll {
+  int32 id = 1;
+  string question = 2;
+  int32 created_by = 3;
+  string created_at = 4;
+  string updated_at = 5;
+}
+
+message PollResults {
+  int32 id = 1;
+  string question = 2;
+  int32 created_by = 3;
+  string created_at = 4;
+  string updated_at = 5;
+  repeated PollOptionResult options = 6;
+  int32 total_votes = 7;
+}
+
+message PollOptionResult {
+  int32 id = 1;
+  string text = 2;
+  int32 vote_count = 3;
+}
+
