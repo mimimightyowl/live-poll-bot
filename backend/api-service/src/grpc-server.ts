@@ -170,7 +170,7 @@ export function startGrpcServer(port: number = 50051): void {
             full_name: user.full_name || '',
             telegram_id: user.telegram_id || '',
             created_at: user.created_at.toISOString(),
-            updated_at: user.updated_at.toISOString(),
+            updated_at: user.updated_at ? user.updated_at.toISOString() : '',
           },
         });
       } catch (error) {
@@ -205,7 +205,7 @@ export function startGrpcServer(port: number = 50051): void {
             full_name: user.full_name || '',
             telegram_id: user.telegram_id || '',
             created_at: user.created_at.toISOString(),
-            updated_at: user.updated_at.toISOString(),
+            updated_at: user.updated_at ? user.updated_at.toISOString() : '',
           },
         });
       } catch (error) {

@@ -193,14 +193,20 @@ npm start
 
 ## 🌐 Service Ports
 
-| Service       | REST/HTTP | gRPC  | WebSocket | URL                         |
-| ------------- | --------- | ----- | --------- | --------------------------- |
-| API Service   | 3000      | 50051 | -         | http://localhost:3000       |
-| Realtime WS   | -         | -     | 3001      | ws://localhost:3001         |
-| Realtime HTTP | 3002      | 50052 | -         | http://localhost:3002       |
-| Bot Service   | -         | -     | -         | Telegram Bot                |
-| PostgreSQL    | -         | -     | -         | postgresql://localhost:5432 |
-| Frontend      | 5174      | -     | -         | http://localhost:5174       |
+| Service     | REST/HTTP | gRPC  | WebSocket | URL                         | DB Access   |
+| ----------- | --------- | ----- | --------- | --------------------------- | ----------- |
+| API Service | 3000      | 50051 | -         | http://localhost:3000       | ✅ Direct   |
+| Realtime    | 3002      | 50052 | 3001      | ws://3001, http://3002      | ❌ Via gRPC |
+| Bot Service | -         | -     | -         | Telegram Bot                | ❌ Via gRPC |
+| PostgreSQL  | -         | -     | -         | postgresql://localhost:5432 | -           |
+| Frontend    | 5174      | -     | -         | http://localhost:5174       | ❌ Via REST |
+
+**Architecture Notes:**
+
+- ✅ **API Service** is the only service with direct database access (Database per Service pattern)
+- ✅ **Realtime Service** fetches data from API Service via gRPC (no direct DB access)
+- ✅ **Bot Service** communicates with API Service via gRPC for all operations
+- ✅ **Frontend** uses REST API for CRUD operations and WebSocket for real-time updates
 
 ## 📝 Development Workflow
 
@@ -282,8 +288,10 @@ npm install
 2. **Run migrations**: `npm run migrate` after pulling new code
 3. **Use `npm run dev`**: Runs both API and Realtime in parallel
 4. **Bot Service**: Requires `TELEGRAM_BOT_TOKEN` environment variable
-5. **Check logs**: Services show colored output (blue=api, magenta=realtime)
-6. **Graceful shutdown**: Use Ctrl+C to stop services properly
+5. **Database Access**: Only API Service connects to PostgreSQL directly
+6. **Realtime Service**: Gets data from API Service via gRPC (no direct DB access)
+7. **Check logs**: Services show colored output (blue=api, magenta=realtime)
+8. **Graceful shutdown**: Use Ctrl+C to stop services properly
 
 ## 📚 Additional Resources
 
@@ -299,3 +307,4 @@ npm install
 3. Check database: `docker exec app-db psql -U app -d main_dev -c "SELECT 1;"`
 4. Review environment files: `.env.development` in each service
 5. Bot Service: Ensure `TELEGRAM_BOT_TOKEN` is set in `.env.development`
+6. Realtime Service: Ensure `API_SERVICE_GRPC_URL` points to API Service (default: localhost:50051)

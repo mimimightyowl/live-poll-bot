@@ -1,10 +1,10 @@
 import * as grpc from '@grpc/grpc-js';
 import * as protoLoader from '@grpc/proto-loader';
 import * as path from 'path';
-import { env } from '../config';
-import logger from '../shared/logger';
+import { env } from '../../config';
+import logger from '../../shared/logger';
 
-const PROTO_PATH = path.resolve(__dirname, '../../proto/polls.proto');
+const PROTO_PATH = path.resolve(__dirname, '../../../proto/polls.proto');
 
 const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
   keepCase: true,
