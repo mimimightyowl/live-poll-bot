@@ -136,8 +136,11 @@ export function startGrpcServer(port: number = 50051): void {
       try {
         const { poll_id, text } = call.request;
 
+        // Trim the text to remove leading/trailing whitespace
+        const trimmedText = text?.trim() || '';
+
         // Validate input
-        if (!text || text.trim().length === 0) {
+        if (trimmedText.length === 0) {
           callback({
             code: grpc.status.INVALID_ARGUMENT,
             message: 'Option text cannot be empty',
@@ -145,7 +148,7 @@ export function startGrpcServer(port: number = 50051): void {
           return;
         }
 
-        if (text.length > 255) {
+        if (trimmedText.length > 255) {
           callback({
             code: grpc.status.INVALID_ARGUMENT,
             message: 'Option text must be at most 255 characters',
@@ -164,7 +167,7 @@ export function startGrpcServer(port: number = 50051): void {
           return;
         }
 
-        const option = await pollService.addPollOption(poll_id, text);
+        const option = await pollService.addPollOption(poll_id, trimmedText);
         callback(null, {
           success: true,
           option: {
