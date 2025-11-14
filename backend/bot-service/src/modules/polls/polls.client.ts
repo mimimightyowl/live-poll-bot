@@ -88,6 +88,21 @@ export interface GetPollResultsResponse {
   results?: PollResults;
 }
 
+export interface AddPollOptionRequest {
+  poll_id: number;
+  text: string;
+}
+
+export interface AddPollOptionResponse {
+  success: boolean;
+  option?: {
+    id: number;
+    poll_id: number;
+    text: string;
+  };
+  message?: string;
+}
+
 class PollsClient {
   private client: any;
 
@@ -157,6 +172,24 @@ class PollsClient {
         (error: grpc.ServiceError | null, response: GetPollResultsResponse) => {
           if (error) {
             logger.error('gRPC GetPollResults error:', error);
+            reject(error);
+            return;
+          }
+          resolve(response);
+        }
+      );
+    });
+  }
+
+  async addPollOption(
+    request: AddPollOptionRequest
+  ): Promise<AddPollOptionResponse> {
+    return new Promise((resolve, reject) => {
+      this.client.AddPollOption(
+        request,
+        (error: grpc.ServiceError | null, response: AddPollOptionResponse) => {
+          if (error) {
+            logger.error('gRPC AddPollOption error:', error);
             reject(error);
             return;
           }
