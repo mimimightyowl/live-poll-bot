@@ -131,6 +131,57 @@ export function startGrpcServer(port: number = 50051): void {
         });
       }
     },
+
+    AddPollOption: async (call: any, callback: any) => {
+      try {
+        const { poll_id, text } = call.request;
+
+        // Validate input
+        if (!text || text.trim().length === 0) {
+          callback({
+            code: grpc.status.INVALID_ARGUMENT,
+            message: 'Option text cannot be empty',
+          });
+          return;
+        }
+
+        if (text.length > 255) {
+          callback({
+            code: grpc.status.INVALID_ARGUMENT,
+            message: 'Option text must be at most 255 characters',
+          });
+          return;
+        }
+
+        // Check if poll exists
+        try {
+          await pollService.getPollById(poll_id);
+        } catch (pollError) {
+          callback({
+            code: grpc.status.NOT_FOUND,
+            message: 'Poll not found',
+          });
+          return;
+        }
+
+        const option = await pollService.addPollOption(poll_id, text);
+        callback(null, {
+          success: true,
+          option: {
+            id: option.id,
+            poll_id: option.poll_id,
+            text: option.text,
+          },
+          message: 'Option added successfully',
+        });
+      } catch (error) {
+        logger.error('gRPC AddPollOption error:', error as Error);
+        callback({
+          code: grpc.status.INTERNAL,
+          message: (error as Error).message,
+        });
+      }
+    },
   });
 
   // Users Service implementation
