@@ -35,13 +35,19 @@ export async function startBot(): Promise<void> {
   bot.help(ctx => {
     ctx.reply(
       '📋 Доступные команды:\n\n' +
-        '/start - Начать работу с ботом\n' +
-        '/createpoll "Вопрос" - Создать новый опрос\n' +
-        '/mypolls - Список ваших опросов\n' +
-        '/poll <id> - Информация об опросе\n' +
-        '/help - Показать эту справку\n\n' +
-        'Пример:\n' +
-        '/createpoll "Какой язык программирования лучше?"'
+        '🆕 Создание опроса:\n' +
+        '/createpoll "Вопрос" - Создать опрос\n' +
+        '/addoption <id> "текст" - Добавить вариант\n' +
+        '/finish <id> - Завершить создание\n\n' +
+        '📊 Управление:\n' +
+        '/mypolls - Список опросов\n' +
+        '/poll <id> - Информация об опросе\n\n' +
+        '💡 Пример использования:\n' +
+        '1. /createpoll "Какой язык лучше?"\n' +
+        '2. /addoption 1 "Python"\n' +
+        '3. /addoption 1 "JavaScript"\n' +
+        '4. /finish 1\n\n' +
+        '✨ После завершения получите ссылку для голосования!'
     );
   });
 
@@ -83,6 +89,22 @@ export async function startBot(): Promise<void> {
     }
 
     await pollsHandler.handleGetPoll(ctx, pollId);
+  });
+
+  // Add option command handler
+  bot.command('addoption', async ctx => {
+    const userId = await usersHandler.ensureUser(ctx);
+    if (userId) {
+      await pollsHandler.handleAddOption(ctx, userId);
+    }
+  });
+
+  // Finish poll command handler
+  bot.command('finish', async ctx => {
+    const userId = await usersHandler.ensureUser(ctx);
+    if (userId) {
+      await pollsHandler.handleFinishPoll(ctx, userId);
+    }
   });
 
   await bot.launch();
