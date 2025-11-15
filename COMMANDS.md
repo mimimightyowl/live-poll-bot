@@ -5,7 +5,7 @@
 ```bash
 # Quick start (after first setup)
 npm run docker:db     # Start dev database
-npm run dev           # Start backend
+npm run dev           # Start backend (API + Realtime + Bot)
 
 # First time setup
 npm install           # Install all dependencies
@@ -19,13 +19,14 @@ npm run seed          # Add test data
 
 ### Development
 
-| Command                | Description                                  |
-| ---------------------- | -------------------------------------------- |
-| `npm run dev`          | Start API + Realtime services                |
-| `npm run dev:api`      | Start only API service                       |
-| `npm run dev:realtime` | Start only Realtime service                  |
-| `npm run dev:frontend` | Start only Frontend                          |
-| `npm run dev:full`     | Start everything (API + Realtime + Frontend) |
+| Command                | Description                                        |
+| ---------------------- | -------------------------------------------------- |
+| `npm run dev`          | Start API + Realtime + Bot services                |
+| `npm run dev:api`      | Start only API service                             |
+| `npm run dev:realtime` | Start only Realtime service                        |
+| `npm run dev:bot`      | Start only Bot service                             |
+| `npm run dev:frontend` | Start only Frontend                                |
+| `npm run dev:full`     | Start everything (API + Realtime + Bot + Frontend) |
 
 ### Build
 
@@ -76,7 +77,7 @@ npm run seed          # Add test data
 
 ```bash
 npm run docker:db     # Start DB (once)
-npm run dev           # Start backend
+npm run dev           # Start backend (API + Realtime + Bot)
 # In another terminal:
 npm run dev:frontend  # Start frontend
 ```
@@ -115,16 +116,18 @@ After running `npm run dev`:
 - 🔵 **API Service**: http://localhost:3000
 - 🟣 **Realtime WS**: ws://localhost:3001
 - 📡 **Realtime HTTP**: http://localhost:3002
+- 🟡 **Bot Service**: gRPC client (Telegram)
 - 🗄️ **PostgreSQL**: postgresql://localhost:5432
 - 🌐 **Frontend**: http://localhost:5173 (if running)
 
 ## 💡 Tips
 
 1. **First time?** See [DEVELOPMENT.md](./DEVELOPMENT.md) for detailed setup
-2. **Colors**: `npm run dev` shows blue (API) and magenta (Realtime) logs
+2. **Colors**: `npm run dev` shows blue (API), magenta (Realtime), and yellow (Bot) logs
 3. **Stop services**: Use `Ctrl+C` - services shutdown gracefully
-4. **Port conflicts?**: Check with `lsof -i :3000 :3001 :3002`
+4. **Port conflicts?**: Check with `lsof -i :3000 :3001 :3002 :50051`
 5. **Database issues?**: Try `npm run db:reset`
+6. **Bot not responding?**: Check `.env.development` in `backend/bot-service`
 
 ## 🆘 Troubleshooting
 

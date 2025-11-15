@@ -4,6 +4,8 @@ import pollsClient, {
   GetUserPollsRequest,
   GetPollResultsRequest,
   PollResults,
+  AddPollOptionRequest,
+  PollOptionResult,
 } from './polls.client';
 import logger from '../../shared/logger';
 
@@ -73,6 +75,35 @@ class PollsService {
     } catch (error) {
       logger.error('Error in PollsService.getPollResults:', error as Error);
       return null;
+    }
+  }
+
+  async addPollOption(pollId: number, text: string): Promise<number> {
+    try {
+      const request: AddPollOptionRequest = { poll_id: pollId, text };
+      const response = await pollsClient.addPollOption(request);
+
+      if (!response.success || !response.option) {
+        throw new Error('Failed to add poll option');
+      }
+
+      return response.option.id;
+    } catch (error) {
+      logger.error('Error in PollsService.addPollOption:', error as Error);
+      throw error;
+    }
+  }
+
+  async getPollOptions(pollId: number): Promise<PollOptionResult[]> {
+    try {
+      const results = await this.getPollResults(pollId);
+      if (!results) {
+        return [];
+      }
+      return results.options;
+    } catch (error) {
+      logger.error('Error in PollsService.getPollOptions:', error as Error);
+      return [];
     }
   }
 }
