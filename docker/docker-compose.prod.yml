@@ -36,7 +36,7 @@ services:
       DB_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
       DB_NAME: ${POSTGRES_DB:-main}
       DATABASE_URL: postgresql://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-changeme}@db:5432/${POSTGRES_DB:-main}
-    command: sh -c "npm ci --production && npm run migrate"
+    command: sh -c "npm ci && npm run migrate"
     depends_on:
       db:
         condition: service_healthy
@@ -65,7 +65,7 @@ services:
     ports:
       - '3000:3000'
       - '50051:50051'
-    command: sh -c "npm ci --production && npm run build && npm start"
+    command: sh -c "npm ci && npm run build && npm start"
     depends_on:
       db:
         condition: service_healthy
@@ -92,7 +92,7 @@ services:
       - '3001:3001'
       - '3002:3002'
       - '50052:50052'
-    command: sh -c "npm ci --production && npm run build && npm start"
+    command: sh -c "npm ci && npm run build && npm start"
     depends_on:
       api:
         condition: service_started
@@ -112,7 +112,7 @@ services:
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
       API_SERVICE_GRPC_URL: api:50051
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
-    command: sh -c "npm ci --production && npm run build && npm start"
+    command: sh -c "npm ci && npm run build && npm start"
     depends_on:
       api:
         condition: service_started
