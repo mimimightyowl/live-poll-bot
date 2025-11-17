@@ -1,0 +1,131 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:16
+    container_name: app-db-prod
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-app}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      POSTGRES_DB: ${POSTGRES_DB:-main}
+    ports:
+      - '5432:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-app}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - db-prod-data:/var/lib/postgresql/data
+    networks:
+      - app
+    restart: unless-stopped
+
+  migrate:
+    image: node:24-alpine
+    container_name: app-migrate-prod
+    working_dir: /app
+    volumes:
+      - ../backend/api-service:/app
+      - api-node-modules:/app/node_modules
+    environment:
+      NODE_ENV: production
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: ${POSTGRES_USER:-app}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      DB_NAME: ${POSTGRES_DB:-main}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-changeme}@db:5432/${POSTGRES_DB:-main}
+    command: sh -c "npm ci --production && npm run migrate"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: 'no'
+    networks:
+      - app
+
+  api:
+    image: node:24-alpine
+    container_name: app-api-prod
+    working_dir: /app
+    volumes:
+      - ../backend/api-service:/app
+      - api-node-modules:/app/node_modules
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      GRPC_PORT: 50051
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: ${POSTGRES_USER:-app}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      DB_NAME: ${POSTGRES_DB:-main}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-changeme}@db:5432/${POSTGRES_DB:-main}
+      REALTIME_SERVICE_GRPC_URL: realtime:50052
+    ports:
+      - '3000:3000'
+      - '50051:50051'
+    command: sh -c "npm ci --production && npm run build && npm start"
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    networks:
+      - app
+    restart: unless-stopped
+
+  realtime:
+    image: node:24-alpine
+    container_name: app-realtime-prod
+    working_dir: /app
+    volumes:
+      - ../backend/realtime-service:/app
+      - realtime-node-modules:/app/node_modules
+    environment:
+      NODE_ENV: production
+      WS_PORT: 3001
+      HTTP_PORT: 3002
+      GRPC_PORT: 50052
+      API_SERVICE_GRPC_URL: api:50051
+    ports:
+      - '3001:3001'
+      - '3002:3002'
+      - '50052:50052'
+    command: sh -c "npm ci --production && npm run build && npm start"
+    depends_on:
+      api:
+        condition: service_started
+    networks:
+      - app
+    restart: unless-stopped
+
+  bot:
+    image: node:24-alpine
+    container_name: app-bot-prod
+    working_dir: /app
+    volumes:
+      - ../backend/bot-service:/app
+      - bot-node-modules:/app/node_modules
+    environment:
+      NODE_ENV: production
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      API_SERVICE_GRPC_URL: api:50051
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
+    command: sh -c "npm ci --production && npm run build && npm start"
+    depends_on:
+      api:
+        condition: service_started
+    networks:
+      - app
+    restart: unless-stopped
+
+volumes:
+  db-prod-data:
+  api-node-modules:
+  realtime-node-modules:
+  bot-node-modules:
+
+networks:
+  app:
+    driver: bridge

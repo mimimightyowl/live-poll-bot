@@ -6,8 +6,10 @@
     "node": ">=24.11.0"
   },
   "scripts": {
-    "dev": "vite",
-    "build": "vue-tsc --noEmit && vite build",
+    "dev": "vite --mode development",
+    "test": "vite --mode test --port 5176",
+    "build": "vue-tsc --noEmit && vite build --mode production",
+    "build:test": "vue-tsc --noEmit && vite build --mode test",
     "preview": "vite preview",
     "type-check": "vue-tsc --noEmit",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx,.vue",

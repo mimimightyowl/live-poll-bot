@@ -8,24 +8,29 @@ Real-time polling application with microservices architecture.
 # 1. Install dependencies
 npm install
 
-# 2. Start PostgreSQL (dev mode)
-npm run docker:db
+# 2. Start PostgreSQL
+npm run dev:db
 
 # 3. Wait ~10 seconds for DB to be ready
 
-# 4. Run migrations
-npm run migrate
+# 4. Setup database
+npm run dev:migrate
+npm run seed
 
 # 5. Start all backend services
 npm run dev
+
+# 6. Start frontend (in new terminal)
+npm run dev:frontend
 ```
 
-That's it! Your backend is running:
+That's it! Your application is running:
 
-- 🔵 API Service: http://localhost:3000 (gRPC: localhost:50051)
-- 🟣 Realtime Service: ws://localhost:3001, http://localhost:3002 (gRPC: localhost:50052)
+- 🔵 API Service: http://localhost:3000
+- 🟣 Realtime Service: ws://localhost:3001, http://localhost:3002
 - 🤖 Bot Service: Telegram bot (requires TELEGRAM_BOT_TOKEN)
 - 📊 PostgreSQL: postgresql://localhost:5432
+- 🎨 Frontend: http://localhost:5173
 
 ## 📖 Documentation
 
@@ -104,28 +109,35 @@ That's it! Your backend is running:
 ### Development
 
 ```bash
-npm run dev              # Start backend (api + realtime)
-npm run dev:full         # Start everything (+ frontend)
-npm run dev:api          # Start only API
-npm run dev:realtime     # Start only Realtime
-npm run dev:bot          # Start only Bot Service
-npm run dev:frontend     # Start only Frontend
+npm run dev              # Start all backend services (api + realtime + bot)
+npm run dev:frontend     # Start poll app (port 5173)
+npm run dev:admin        # Start admin app (port 5174)
+npm run dev:db           # Start PostgreSQL
+npm run dev:db:down      # Stop PostgreSQL
 ```
 
 ### Database
 
 ```bash
-npm run migrate          # Run migrations
+npm run dev:migrate      # Run migrations
 npm run seed             # Seed test data
-npm run db:reset         # Reset database
+npm run db:reset         # Reset database (migrations + seed)
 ```
 
-### Docker
+### Test
 
 ```bash
-npm run docker:db        # Start only PostgreSQL
-npm run docker:up        # Start all services
-npm run docker:down      # Stop all services
+npm run test             # Start test environment (Docker)
+npm run test:down        # Stop test environment
+npm run test:logs        # View logs
+```
+
+### Production
+
+```bash
+npm run build            # Build backend services
+npm run build:frontend   # Build frontend apps
+npm start                # Start production
 ```
 
 ### Code Quality
@@ -135,7 +147,7 @@ npm run lint             # Lint code
 npm run format           # Format code
 ```
 
-See [DEVELOPMENT.md](./DEVELOPMENT.md) for more commands.
+See [DEVELOPMENT.md](./DEVELOPMENT.md) for complete documentation.
 
 ## 🛠️ Tech Stack
 

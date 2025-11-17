@@ -6,6 +6,7 @@
     "build": "tsc",
     "start": "NODE_ENV=production node dist/server.js",
     "dev": "NODE_ENV=development ts-node-dev --respawn --transpile-only src/server.ts",
+    "test": "NODE_ENV=test ts-node-dev --respawn --transpile-only src/server.ts",
     "migrate": "node -r ts-node/register -r ./src/shared/env-loader node_modules/.bin/node-pg-migrate -m src/shared/infra/migrations up",
     "migrate:down": "node -r ts-node/register -r ./src/shared/env-loader node_modules/.bin/node-pg-migrate -m src/shared/infra/migrations down",
     "migrate:create": "node -r ts-node/register -r ./src/shared/env-loader node_modules/.bin/node-pg-migrate create -m src/shared/infra/migrations --migration-file-language sql",

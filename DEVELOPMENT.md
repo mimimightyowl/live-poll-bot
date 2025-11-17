@@ -7,118 +7,154 @@
 - Node.js >= 18.20.5
 - PostgreSQL (via Docker)
 
+## ⚙️ Environment Setup
+
+Проект использует три окружения: **development**, **test**, и **production**.
+
+Каждый сервис имеет шаблоны для всех окружений:
+
+- `.env.development.example` - для локальной разработки
+- `.env.test.example` - для тестирования
+- `.env.production.example` - для продакшена
+
+### Quick Start (Development)
+
+```bash
+# Backend services
+cp backend/api-service/.env.development.example backend/api-service/.env.development
+cp backend/realtime-service/.env.development.example backend/realtime-service/.env.development
+cp backend/bot-service/.env.development.example backend/bot-service/.env.development
+
+# Frontend apps
+cp frontend/poll-app/.env.development.example frontend/poll-app/.env.development
+cp frontend/admin-app/.env.development.example frontend/admin-app/.env.development
+```
+
+### Получение Telegram Bot Token
+
+1. Откройте Telegram, найдите @BotFather
+2. Отправьте команду `/newbot`
+3. Следуйте инструкциям для создания бота
+4. Скопируйте полученный токен
+5. Вставьте токен в `backend/bot-service/.env.development`:
+   ```bash
+   TELEGRAM_BOT_TOKEN=your_actual_token_here
+   ```
+
+### Настройка окружений
+
+#### Development (по умолчанию)
+
+- API Service: `http://localhost:3000`
+- Realtime WebSocket: `ws://localhost:3001`
+- Realtime HTTP: `http://localhost:3002`
+- PostgreSQL: `postgresql://app:secret@localhost:5432/main_dev`
+- Frontend Poll App: `http://localhost:5173`
+- Frontend Admin App: `http://localhost:5174`
+
+#### Test
+
+Использует отдельные порты и базу данных для избежания конфликтов:
+
+- API Service: порт 3001
+- Realtime WebSocket: порт 3011
+- Realtime HTTP: порт 3012
+- PostgreSQL: `main_test` database
+
+#### Production
+
+Требует настройки реальных доменов и использование HTTPS/WSS для безопасности.
+
 ### Setup
 
 ```bash
 # 1. Install all dependencies
 npm install
 
-# 2. Start PostgreSQL (development)
-npm run docker:db
+# 2. Start PostgreSQL
+npm run dev:db
 
 # 3. Wait for DB to be healthy (~10 seconds)
 
-# 4. Run migrations
-npm run migrate
-
-# 5. Seed database (optional, adds test data)
+# 4. Run migrations and seed data
+npm run dev:migrate
 npm run seed
 
-# 6. Start all backend services
+# 5. Start all backend services
 npm run dev
+
+# 6. Start frontend (in separate terminal)
+npm run dev:frontend
 ```
 
 ## 📋 Available Commands
 
-### Development
-
-#### Start Services
+### Development (Local)
 
 ```bash
-# Start all backend services (api + realtime)
+# Start database
+npm run dev:db
+
+# Run migrations and seed data (first time)
+npm run dev:migrate
+npm run seed
+
+# Start all backend services (api + realtime + bot)
 npm run dev
 
-# Start only API service
-npm run dev:api
+# Start frontend apps (in separate terminals)
+npm run dev:frontend    # Poll app on port 5173
+npm run dev:admin       # Admin app on port 5174
 
-# Start only Realtime service
-npm run dev:realtime
+# Database management
+npm run db:reset        # Reset database (down + up + seed)
 
-# Start only Bot service
-npm run dev:bot
-
-# Start backend services (alias for npm run dev)
-npm run dev:backend
-
-# Start frontend
-npm run dev:frontend
-
-# Start EVERYTHING (api + realtime + frontend)
-npm run dev:full
+# Stop database
+npm run dev:db:down
 ```
 
-#### Build
+### Test Environment (Docker)
 
 ```bash
+# Start all test services in Docker
+npm run test
+
+# Run migrations for test
+npm run test:migrate
+
+# View logs
+npm run test:logs
+
+# Stop test environment
+npm run test:down
+```
+
+### Production (CI/CD)
+
+```bash
+# Install dependencies (runs automatically)
+npm install
+
 # Build all backend services
 npm run build
 
-# Build only API service
-npm run build:api
+# Build frontend apps
+npm run build:frontend
 
-# Build only Realtime service
-npm run build:realtime
-
-# Build only Bot service
-npm run build:bot
+# Start production services
+npm start
 ```
 
-### Database Management
+### Code Quality (CI/CD)
 
 ```bash
-# Run migrations
-npm run migrate
-
-# Seed database with test data
-npm run seed
-
-# Reset database (down -> up -> seed)
-npm run db:reset
-```
-
-### Docker
-
-```bash
-# Start only PostgreSQL
-npm run docker:db
-
-# Stop PostgreSQL
-npm run docker:db:down
-
-# Start all services in Docker (not recommended for dev)
-npm run docker:up
-
-# Stop all Docker services
-npm run docker:down
-
-# View Docker logs
-npm run docker:logs
-```
-
-### Code Quality
-
-```bash
-# Lint all code
+# Check code quality
 npm run lint
-
-# Lint and fix
-npm run lint:fix
-
-# Format all code
-npm run format
-
-# Check formatting
 npm run format:check
+
+# Fix code (development)
+npm run lint:fix
+npm run format
 ```
 
 ## 🏗️ Project Structure
@@ -139,56 +175,34 @@ live-poll-bot/
 
 ## 🔧 Service-Specific Commands
 
-### API Service
+Для работы с отдельными сервисами перейдите в их директории:
 
 ```bash
+# API Service
 cd backend/api-service
+npm run dev          # Development
+npm run test         # Test
+npm run build        # Build
+npm start            # Production
 
-# Development
-npm run dev
+# Database migrations (API service only)
+npm run migrate          # Run migrations
+npm run migrate:down     # Rollback
+npm run migrate:create   # Create new migration
 
-# Build
-npm run build
-
-# Production
-npm start
-
-# Database
-npm run migrate
-npm run migrate:down
-npm run migrate:create
-npm run seed:dev
-npm run db:reset
-```
-
-### Realtime Service
-
-```bash
+# Realtime Service
 cd backend/realtime-service
+npm run dev / test / build / start
 
-# Development
-npm run dev
-
-# Build
-npm run build
-
-# Production
-npm start
-```
-
-### Bot Service
-
-```bash
+# Bot Service
 cd backend/bot-service
+npm run dev / test / build / start
 
-# Development
-npm run dev
-
-# Build
-npm run build
-
-# Production
-npm start
+# Frontend Apps
+cd frontend/poll-app  # or frontend/admin-app
+npm run dev          # Development (port 5173/5174)
+npm run test         # Test mode (port 5175/5176)
+npm run build        # Production build
 ```
 
 ## 🌐 Service Ports
@@ -210,40 +224,40 @@ npm start
 
 ## 📝 Development Workflow
 
-### Option 1: Local Development (Recommended)
+### Local Development (Recommended)
 
 ```bash
 # Terminal 1: Start database
-npm run docker:db
+npm run dev:db
 
-# Terminal 2: Start backend services (api + realtime)
+# Terminal 2: Setup database (first time only)
+npm run dev:migrate
+npm run seed
+
+# Terminal 3: Start backend services (api + realtime + bot)
 npm run dev
-
-# Terminal 3: Start bot service (optional)
-npm run dev:bot
 
 # Terminal 4: Start frontend
 npm run dev:frontend
+
+# Terminal 5: Start admin app (optional)
+npm run dev:admin
+
+# Note: If you need to reset database
+npm run db:reset
 ```
 
-### Option 2: Everything in One Terminal
+### Test Environment (Docker)
 
 ```bash
-# Start database
-npm run docker:db
+# Start all test services in Docker
+npm run test
 
-# Wait for DB to be ready, then start everything
-npm run dev:full
-```
+# In another terminal: view logs
+npm run test:logs
 
-### Option 3: Full Docker Stack
-
-```bash
-# Start everything in Docker
-npm run docker:up
-
-# View logs
-npm run docker:logs
+# Stop when done
+npm run test:down
 ```
 
 ## 🔍 Troubleshooting
@@ -252,13 +266,14 @@ npm run docker:logs
 
 ```bash
 # Find process using port
-lsof -i :3000  # or 3001, 3002
+lsof -i :3000 -i :3001 -i :3002
 
 # Kill process
 kill -9 <PID>
 
 # Or stop Docker containers
-npm run docker:down
+npm run dev:db:down
+npm run test:down
 ```
 
 ### Database Connection Issues
@@ -268,11 +283,8 @@ npm run docker:down
 docker ps | grep postgres
 
 # Restart database
-npm run docker:db:down
-npm run docker:db
-
-# Reset database
-npm run db:reset
+npm run dev:db:down
+npm run dev:db
 ```
 
 ### Module Not Found
@@ -284,14 +296,15 @@ npm install
 
 ## 🎯 Best Practices
 
-1. **Always start with database**: `npm run docker:db`
-2. **Run migrations**: `npm run migrate` after pulling new code
-3. **Use `npm run dev`**: Runs both API and Realtime in parallel
-4. **Bot Service**: Requires `TELEGRAM_BOT_TOKEN` environment variable
+1. **Always start with database**: `npm run dev:db`
+2. **Run migrations**: `npm run dev:migrate` after pulling new code
+3. **Use `npm run dev`**: Runs all backend services (api + realtime + bot) in parallel
+4. **Bot Service**: Requires `TELEGRAM_BOT_TOKEN` in `.env.development`
 5. **Database Access**: Only API Service connects to PostgreSQL directly
 6. **Realtime Service**: Gets data from API Service via gRPC (no direct DB access)
-7. **Check logs**: Services show colored output (blue=api, magenta=realtime)
+7. **Check logs**: Services show colored output (blue=api, magenta=realtime, yellow=bot)
 8. **Graceful shutdown**: Use Ctrl+C to stop services properly
+9. **Test environment**: Use Docker (`npm run test`) for isolated testing
 
 ## 📚 Additional Resources
 
@@ -302,9 +315,9 @@ npm install
 
 ## 🆘 Getting Help
 
-1. Check service logs: `npm run docker:logs`
-2. Verify ports are free: `lsof -i :3000 -i :3001 -i :3002 -i :50051 -i :50052`
-3. Check database: `docker exec app-db psql -U app -d main_dev -c "SELECT 1;"`
-4. Review environment files: `.env.development` in each service
-5. Bot Service: Ensure `TELEGRAM_BOT_TOKEN` is set in `.env.development`
-6. Realtime Service: Ensure `API_SERVICE_GRPC_URL` points to API Service (default: localhost:50051)
+1. Check service logs: Look at the terminal where services are running
+2. Check test logs: `npm run test:logs`
+3. Verify ports are free: `lsof -i :3000 -i :3001 -i :3002 -i :5173`
+4. Check database: `docker ps | grep postgres`
+5. Review environment files: `.env.development` in each service
+6. Bot Service: Ensure `TELEGRAM_BOT_TOKEN` is set in `backend/bot-service/.env.development`
