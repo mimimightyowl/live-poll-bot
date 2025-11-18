@@ -3,8 +3,8 @@ import usersRoutes from '../modules/users/users.routes';
 import pollsRoutes from '../modules/polls/polls.routes';
 import votesRoutes from '../modules/votes/votes.routes';
 import db from '../shared/db';
-import realtimeNotifier from '../shared/realtime-notifier';
 import logger from '../shared/logger';
+import realtimeNotifier from '../shared/realtime-notifier';
 
 const setupRoutes = (app: Express): void => {
   // API routes
@@ -29,9 +29,7 @@ const setupRoutes = (app: Express): void => {
 
     // Check realtime-service gRPC
     try {
-      // Try to notify with a test poll ID (-1) to check connectivity
-      // The RealtimeNotifier already handles errors gracefully
-      await realtimeNotifier.notifyPollUpdate(-1);
+      await realtimeNotifier.checkConnection();
       checks.grpc = 'ok';
     } catch (error) {
       checks.grpc = 'error';

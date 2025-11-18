@@ -54,6 +54,27 @@ class RealtimeNotifier {
       );
     }
   }
+
+  /**
+   * Check gRPC connection health by attempting to notify with a test poll ID.
+   * Unlike notifyPollUpdate, this method throws errors for health check purposes.
+   */
+  async checkConnection(): Promise<void> {
+    const request = { poll_id: -1 };
+
+    await new Promise<any>((resolve, reject) => {
+      this.client.NotifyPollUpdate(
+        request,
+        (error: grpc.ServiceError | null, response: any) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          resolve(response);
+        }
+      );
+    });
+  }
 }
 
 export default new RealtimeNotifier();
