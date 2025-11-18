@@ -1,4 +1,8 @@
-import { isNetworkError, setRetryContext } from './errorHandler';
+import {
+  isNetworkError,
+  setRetryContext,
+  createRetryOperationId,
+} from './errorHandler';
 
 export interface RetryOptions {
   maxRetries?: number;
@@ -17,8 +21,14 @@ const defaultOptions: Required<RetryOptions> = {
 };
 
 /**
+ * Symbol key used to attach operation ID to axios config
+ */
+export const RETRY_OPERATION_ID_KEY = Symbol('retryOperationId');
+
+/**
  * Retry a function with exponential backoff
  * Automatically suppresses intermediate error toasts to prevent duplicates
+ * Each retry operation gets a unique ID to prevent race conditions
  */
 export const retry = async <T>(
   fn: () => Promise<T>,
@@ -27,36 +37,44 @@ export const retry = async <T>(
   const opts = { ...defaultOptions, ...options };
   let lastError: unknown;
 
+  // Create unique operation ID for this retry operation
+  const operationId = createRetryOperationId();
+
   for (let attempt = 0; attempt <= opts.maxRetries; attempt++) {
     try {
       // Set retry context before each attempt (except the first one)
       // This tells the API client whether to show error toasts
       if (attempt > 0) {
-        setRetryContext(true, attempt, opts.maxRetries);
+        setRetryContext(operationId, true, attempt, opts.maxRetries);
       } else {
-        setRetryContext(false, 0, opts.maxRetries);
+        setRetryContext(operationId, false, 0, opts.maxRetries);
       }
 
       const result = await fn();
 
       // Clear retry context on success
-      setRetryContext(false, 0, 0);
+      setRetryContext(operationId, false, 0, 0);
       return result;
     } catch (error) {
       lastError = error;
+
+      // Attach operation ID to error for API client to use
+      if (error && typeof error === 'object') {
+        (error as any)[RETRY_OPERATION_ID_KEY] = operationId;
+      }
 
       // Don't retry if this is the last attempt
       if (attempt === opts.maxRetries) {
         // Clear retry context before throwing final error
         // This ensures the toast is shown for the final failure
-        setRetryContext(false, 0, 0);
+        setRetryContext(operationId, false, 0, 0);
         break;
       }
 
       // Check if we should retry this error
       if (!opts.shouldRetry(error)) {
         // Clear retry context before throwing
-        setRetryContext(false, 0, 0);
+        setRetryContext(operationId, false, 0, 0);
         throw error;
       }
 
@@ -73,7 +91,7 @@ export const retry = async <T>(
     }
   }
 
-  // All retries exhausted
+  // All retries exhausted - operation ID is already attached to error
   throw lastError;
 };
 

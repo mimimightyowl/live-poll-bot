@@ -6,6 +6,7 @@ import axios, {
 import type { ApiError } from '../types';
 import { getToast } from '../utils/toast';
 import { getErrorMessage, shouldShowErrorToast } from '../utils/errorHandler';
+import { RETRY_OPERATION_ID_KEY } from '../utils/retry';
 
 // Get base URL from environment or use default
 const getBaseURL = (): string => {
@@ -48,6 +49,12 @@ apiClient.interceptors.response.use(
     // Get toast instance
     const toast = getToast();
 
+    // Extract operation ID if this error came from a retry operation
+    // The retry utility attaches this to track concurrent operations
+    const operationId = (error as any)[RETRY_OPERATION_ID_KEY] as
+      | symbol
+      | undefined;
+
     // Handle common errors
     if (error.response) {
       const statusCode = error.response.status;
@@ -60,8 +67,14 @@ apiClient.interceptors.response.use(
         statusCode,
       };
 
+      // Preserve operation ID in the API error for tracking
+      if (operationId) {
+        (apiError as any)[RETRY_OPERATION_ID_KEY] = operationId;
+      }
+
       // Show toast notification for client errors
-      if (toast && shouldShowErrorToast()) {
+      // Pass operation ID to prevent duplicate toasts during retries
+      if (toast && shouldShowErrorToast(operationId)) {
         // Don't show toast for 401 errors (will be handled by auth flow)
         if (statusCode !== 401) {
           toast.error(message);
@@ -75,7 +88,12 @@ apiClient.interceptors.response.use(
         message: 'No response from server. Please check your connection.',
       };
 
-      if (toast && shouldShowErrorToast()) {
+      // Preserve operation ID
+      if (operationId) {
+        (apiError as any)[RETRY_OPERATION_ID_KEY] = operationId;
+      }
+
+      if (toast && shouldShowErrorToast(operationId)) {
         toast.error(apiError.message);
       }
 
@@ -86,7 +104,12 @@ apiClient.interceptors.response.use(
         message: error.message || 'Request failed',
       };
 
-      if (toast && shouldShowErrorToast()) {
+      // Preserve operation ID
+      if (operationId) {
+        (apiError as any)[RETRY_OPERATION_ID_KEY] = operationId;
+      }
+
+      if (toast && shouldShowErrorToast(operationId)) {
         toast.error(apiError.message);
       }
 

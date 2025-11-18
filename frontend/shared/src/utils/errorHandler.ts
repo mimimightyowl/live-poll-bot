@@ -23,47 +23,73 @@ interface RetryContext {
   maxRetries: number;
 }
 
-let retryContext: RetryContext = {
-  isRetrying: false,
-  currentAttempt: 0,
-  maxRetries: 0,
+/**
+ * Map to store retry contexts for each operation
+ * Key: unique operation ID (symbol)
+ * Value: retry context
+ */
+const retryContexts = new Map<symbol, RetryContext>();
+
+/**
+ * Create a unique operation ID for a retry operation
+ */
+export const createRetryOperationId = (): symbol => {
+  return Symbol('retryOperation');
 };
 
 /**
- * Set the retry context - called by retry utility
+ * Set the retry context for a specific operation - called by retry utility
  */
 export const setRetryContext = (
+  operationId: symbol,
   isRetrying: boolean,
   currentAttempt: number,
   maxRetries: number
 ): void => {
-  retryContext = { isRetrying, currentAttempt, maxRetries };
+  if (isRetrying) {
+    retryContexts.set(operationId, { isRetrying, currentAttempt, maxRetries });
+  } else {
+    // Clean up when not retrying anymore
+    retryContexts.delete(operationId);
+  }
 };
 
 /**
- * Check if we're currently in a retry loop
+ * Check if we're currently in a retry loop for a specific operation
  */
-export const isInRetryContext = (): boolean => {
-  return retryContext.isRetrying;
+export const isInRetryContext = (operationId: symbol): boolean => {
+  const context = retryContexts.get(operationId);
+  return context?.isRetrying ?? false;
 };
 
 /**
- * Check if this is the last retry attempt
+ * Check if this is the last retry attempt for a specific operation
  * We want to show toasts on the last attempt
  */
-export const isLastRetryAttempt = (): boolean => {
+export const isLastRetryAttempt = (operationId: symbol): boolean => {
+  const context = retryContexts.get(operationId);
   return (
-    retryContext.isRetrying &&
-    retryContext.currentAttempt >= retryContext.maxRetries
+    (context?.isRetrying && context.currentAttempt >= context.maxRetries) ??
+    false
   );
 };
 
 /**
- * Check if we should show error toast
+ * Check if we should show error toast for a specific operation
  * Returns true if not retrying OR if it's the last retry attempt
  */
-export const shouldShowErrorToast = (): boolean => {
-  return !retryContext.isRetrying || isLastRetryAttempt();
+export const shouldShowErrorToast = (operationId?: symbol): boolean => {
+  // If no operation ID provided, show the toast (default behavior)
+  if (!operationId) {
+    return true;
+  }
+
+  const context = retryContexts.get(operationId);
+  if (!context) {
+    return true; // No context = not in a retry, show toast
+  }
+
+  return !context.isRetrying || isLastRetryAttempt(operationId);
 };
 
 /**
@@ -104,6 +130,7 @@ export const handleError = (
 
   // Log to console if enabled
   if (opts.logToConsole) {
+    // eslint-disable-next-line no-console
     console.error('Error:', apiError, error);
   }
 

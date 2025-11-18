@@ -1,18 +1,24 @@
 import { useToast, TYPE, POSITION } from 'vue-toastification';
 import type { ToastOptions } from 'vue-toastification/dist/types/types';
 
-// Toast instance - will be initialized by the apps
+// Toast instance - lazily initialized when needed
 let toastInstance: ReturnType<typeof useToast> | null = null;
 
-export const initToast = () => {
-  toastInstance = useToast();
-  return toastInstance;
-};
-
+/**
+ * Get the toast instance. This will lazy-initialize the toast on first call.
+ * Note: This should be called from within a component context (setup, lifecycle hooks, etc.)
+ * If called outside a component context (e.g., in API interceptors), it may fail silently.
+ */
 export const getToast = () => {
   if (!toastInstance) {
-    // eslint-disable-next-line no-console
-    console.warn('Toast not initialized. Call initToast() first.');
+    try {
+      // Try to get the toast instance - this works when called from component context
+      toastInstance = useToast();
+    } catch (error) {
+      // Silently fail if not in component context
+      // This can happen during initial API calls before any component is mounted
+      return null;
+    }
   }
   return toastInstance;
 };
