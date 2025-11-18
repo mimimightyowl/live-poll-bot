@@ -15,15 +15,17 @@ import { useRouter } from 'vue-router';
 import PollForm from '@/components/PollForm.vue';
 import { pollsApi } from '@shared/api/polls';
 import type { CreatePollDto } from '@shared/types';
+import { toast } from '@shared/utils';
 
 const router = useRouter();
 
 const handleSubmit = async (data: CreatePollDto) => {
   try {
     const poll = await pollsApi.create(data);
+    toast.success('Poll created successfully!');
     router.push(`/poll/${poll.id}`);
   } catch (err: any) {
-    alert(err.message || 'Failed to create poll');
+    // API client already shows error toast
   }
 };
 
