@@ -27,7 +27,7 @@ Edit `.env` with your production values:
 # Database Configuration
 POSTGRES_USER=app
 POSTGRES_PASSWORD=<use-strong-password-here>
-POSTGRES_DB=live_poll_db
+POSTGRES_DB=main
 
 # Telegram Bot
 TELEGRAM_BOT_TOKEN=<your-bot-token-from-botfather>
@@ -215,10 +215,10 @@ docker-compose -f docker/docker-compose.prod.yml down -v
 
 ```bash
 # Backup
-docker-compose -f docker/docker-compose.prod.yml exec postgres pg_dump -U app live_poll_db > backup.sql
+docker-compose -f docker/docker-compose.prod.yml exec postgres pg_dump -U app main > backup.sql
 
 # Restore
-docker-compose -f docker/docker-compose.prod.yml exec -T postgres psql -U app live_poll_db < backup.sql
+docker-compose -f docker/docker-compose.prod.yml exec -T postgres psql -U app main < backup.sql
 ```
 
 ### Database Migrations
@@ -277,7 +277,7 @@ docker-compose -f docker/docker-compose.prod.yml ps postgres
 docker-compose -f docker/docker-compose.prod.yml logs postgres
 
 # Test connection
-docker-compose -f docker/docker-compose.prod.yml exec postgres psql -U app -d live_poll_db
+docker-compose -f docker/docker-compose.prod.yml exec postgres psql -U app -d main
 ```
 
 ### Port conflicts

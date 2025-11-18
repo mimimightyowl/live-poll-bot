@@ -7,7 +7,7 @@ services:
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-app}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
-      POSTGRES_DB: ${POSTGRES_DB:-live_poll_db}
+      POSTGRES_DB: ${POSTGRES_DB:-main}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -32,8 +32,8 @@ services:
       DB_PORT: 5432
       DB_USER: ${POSTGRES_USER:-app}
       DB_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
-      DB_NAME: ${POSTGRES_DB:-live_poll_db}
-      DATABASE_URL: postgresql://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-changeme}@postgres:5432/${POSTGRES_DB:-live_poll_db}
+      DB_NAME: ${POSTGRES_DB:-main}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-changeme}@postgres:5432/${POSTGRES_DB:-main}
       REALTIME_SERVICE_GRPC_URL: realtime-service:50052
     depends_on:
       postgres:

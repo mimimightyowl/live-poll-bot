@@ -168,7 +168,7 @@ docker-compose -f docker/docker-compose.prod.yml exec api-service npm run seed:d
 docker-compose -f docker/docker-compose.prod.yml restart
 
 # 3. Verify data still exists
-docker-compose -f docker/docker-compose.prod.yml exec postgres psql -U app -d live_poll_db -c "SELECT COUNT(*) FROM users;"
+docker-compose -f docker/docker-compose.prod.yml exec postgres psql -U app -d main -c "SELECT COUNT(*) FROM users;"
 ```
 
 Expected: Data should persist after restart
