@@ -31,10 +31,16 @@ const setupRoutes = (app: Express): void => {
     try {
       await realtimeNotifier.checkConnection();
       checks.grpc = 'ok';
-    } catch (error) {
-      checks.grpc = 'error';
-      status = 'unhealthy';
-      logger.warn('Health check - gRPC error:', error as Error);
+    } catch (error: any) {
+      // Connection errors are critical, but NOT_FOUND is expected for health check
+      if (error.code === 5) {
+        // NOT_FOUND - connection is working
+        checks.grpc = 'ok';
+      } else {
+        checks.grpc = 'error';
+        status = 'unhealthy';
+        logger.warn('Health check - gRPC error:', error as Error);
+      }
     }
 
     res.status(status === 'healthy' ? 200 : 503).json({
