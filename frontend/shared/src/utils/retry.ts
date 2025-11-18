@@ -1,4 +1,4 @@
-import { isNetworkError } from './errorHandler';
+import { isNetworkError, setRetryContext } from './errorHandler';
 
 export interface RetryOptions {
   maxRetries?: number;
@@ -18,6 +18,7 @@ const defaultOptions: Required<RetryOptions> = {
 
 /**
  * Retry a function with exponential backoff
+ * Automatically suppresses intermediate error toasts to prevent duplicates
  */
 export const retry = async <T>(
   fn: () => Promise<T>,
@@ -28,17 +29,34 @@ export const retry = async <T>(
 
   for (let attempt = 0; attempt <= opts.maxRetries; attempt++) {
     try {
-      return await fn();
+      // Set retry context before each attempt (except the first one)
+      // This tells the API client whether to show error toasts
+      if (attempt > 0) {
+        setRetryContext(true, attempt, opts.maxRetries);
+      } else {
+        setRetryContext(false, 0, opts.maxRetries);
+      }
+
+      const result = await fn();
+
+      // Clear retry context on success
+      setRetryContext(false, 0, 0);
+      return result;
     } catch (error) {
       lastError = error;
 
       // Don't retry if this is the last attempt
       if (attempt === opts.maxRetries) {
+        // Clear retry context before throwing final error
+        // This ensures the toast is shown for the final failure
+        setRetryContext(false, 0, 0);
         break;
       }
 
       // Check if we should retry this error
       if (!opts.shouldRetry(error)) {
+        // Clear retry context before throwing
+        setRetryContext(false, 0, 0);
         throw error;
       }
 

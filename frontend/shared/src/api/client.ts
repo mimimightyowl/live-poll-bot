@@ -5,7 +5,7 @@ import axios, {
 } from 'axios';
 import type { ApiError } from '../types';
 import { getToast } from '../utils/toast';
-import { getErrorMessage } from '../utils/errorHandler';
+import { getErrorMessage, shouldShowErrorToast } from '../utils/errorHandler';
 
 // Get base URL from environment or use default
 const getBaseURL = (): string => {
@@ -61,7 +61,7 @@ apiClient.interceptors.response.use(
       };
 
       // Show toast notification for client errors
-      if (toast) {
+      if (toast && shouldShowErrorToast()) {
         // Don't show toast for 401 errors (will be handled by auth flow)
         if (statusCode !== 401) {
           toast.error(message);
@@ -75,7 +75,7 @@ apiClient.interceptors.response.use(
         message: 'No response from server. Please check your connection.',
       };
 
-      if (toast) {
+      if (toast && shouldShowErrorToast()) {
         toast.error(apiError.message);
       }
 
@@ -86,7 +86,7 @@ apiClient.interceptors.response.use(
         message: error.message || 'Request failed',
       };
 
-      if (toast) {
+      if (toast && shouldShowErrorToast()) {
         toast.error(apiError.message);
       }
 

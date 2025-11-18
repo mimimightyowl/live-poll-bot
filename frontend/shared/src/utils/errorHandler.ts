@@ -14,6 +14,59 @@ const defaultOptions: ErrorHandlerOptions = {
 };
 
 /**
+ * Retry context to track if we're currently in a retry loop
+ * This prevents duplicate error toasts during retry attempts
+ */
+interface RetryContext {
+  isRetrying: boolean;
+  currentAttempt: number;
+  maxRetries: number;
+}
+
+let retryContext: RetryContext = {
+  isRetrying: false,
+  currentAttempt: 0,
+  maxRetries: 0,
+};
+
+/**
+ * Set the retry context - called by retry utility
+ */
+export const setRetryContext = (
+  isRetrying: boolean,
+  currentAttempt: number,
+  maxRetries: number
+): void => {
+  retryContext = { isRetrying, currentAttempt, maxRetries };
+};
+
+/**
+ * Check if we're currently in a retry loop
+ */
+export const isInRetryContext = (): boolean => {
+  return retryContext.isRetrying;
+};
+
+/**
+ * Check if this is the last retry attempt
+ * We want to show toasts on the last attempt
+ */
+export const isLastRetryAttempt = (): boolean => {
+  return (
+    retryContext.isRetrying &&
+    retryContext.currentAttempt >= retryContext.maxRetries
+  );
+};
+
+/**
+ * Check if we should show error toast
+ * Returns true if not retrying OR if it's the last retry attempt
+ */
+export const shouldShowErrorToast = (): boolean => {
+  return !retryContext.isRetrying || isLastRetryAttempt();
+};
+
+/**
  * Centralized error handler for API and application errors
  */
 export const handleError = (
