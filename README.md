@@ -36,6 +36,7 @@ That's it! Your application is running:
 
 - [Development Guide](./DEVELOPMENT.md) - Complete development workflow
 - [Deployment Guide](./DEPLOYMENT.md) - Production deployment instructions
+- [Health Checks](./HEALTH_CHECKS.md) - Service health monitoring
 - [API Service](./backend/api-service/README.md) - REST API documentation
 - [Realtime Service](./backend/realtime-service/README.md) - WebSocket documentation
 - [Environment Setup](./backend/realtime-service/ENV_SETUP.md) - Configuration guide

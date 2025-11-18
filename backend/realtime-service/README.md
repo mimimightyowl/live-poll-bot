@@ -176,18 +176,25 @@ curl -X POST http://localhost:3002/api/notify/poll/1
 
 ### GET /health
 
-Health check endpoint.
+Health check endpoint that verifies service health and dependencies.
 
 **Response:**
 
 ```json
 {
-  "status": "OK",
-  "message": "Realtime service is running",
-  "timestamp": "2025-01-01T00:00:00.000Z",
-  "connections": 10
+  "status": "healthy",
+  "timestamp": "2025-11-18T10:00:00Z",
+  "service": "realtime-service",
+  "version": "1.0.0",
+  "checks": {
+    "websocket": "ok",
+    "connections": "5",
+    "grpc": "ok"
+  }
 }
 ```
+
+See [Health Checks Documentation](../../HEALTH_CHECKS.md) for more details.
 
 ## Integration with API Service
 
