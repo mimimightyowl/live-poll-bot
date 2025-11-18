@@ -19,6 +19,9 @@ FROM node:18-alpine
 
 WORKDIR /app
 
+# Install curl for health checks
+RUN apk add --no-cache curl
+
 # Copy package files
 COPY package*.json ./
 
@@ -30,6 +33,13 @@ COPY --from=builder /app/dist ./dist
 
 # Copy proto files (needed for gRPC)
 COPY proto ./proto
+
+# Expose port for health check HTTP server
+EXPOSE 3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD curl -f http://localhost:3000/health || exit 1
 
 # Start the application
 CMD ["node", "dist/index.js"]

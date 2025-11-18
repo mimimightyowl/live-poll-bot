@@ -15,6 +15,8 @@ npm run dev:stack
 
 Приложение: `http://localhost:3000`
 
+Health check: `http://localhost:3000/health`
+
 Остановка:
 
 ```bash
