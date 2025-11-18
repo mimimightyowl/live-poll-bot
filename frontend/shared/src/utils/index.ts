@@ -56,3 +56,8 @@ export function truncate(text: string, maxLength: number): string {
   if (text.length <= maxLength) return text;
   return text.substring(0, maxLength) + '...';
 }
+
+// Export error handling utilities
+export * from './errorHandler';
+export * from './toast';
+export * from './retry';

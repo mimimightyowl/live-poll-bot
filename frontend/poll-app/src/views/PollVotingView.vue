@@ -23,14 +23,50 @@
     </div>
 
     <div v-if="loading" class="text-center py-12">
-      <p class="text-gray-600">Loading poll...</p>
+      <div
+        class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"
+      ></div>
+      <p class="text-gray-600 mt-4">Loading poll...</p>
     </div>
 
     <div v-else-if="error" class="card bg-red-50 border border-red-200">
-      <p class="text-red-600">{{ error }}</p>
-      <button @click="fetchPoll" class="btn-secondary mt-4">
-        Try Again
-      </button>
+      <div class="flex items-start">
+        <svg
+          class="w-6 h-6 text-red-600 mr-3 flex-shrink-0"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+        <div class="flex-1">
+          <p class="text-red-600 font-medium">{{ error.message }}</p>
+          <button
+            @click="fetchPoll"
+            class="btn-secondary mt-4 flex items-center"
+          >
+            <svg
+              class="w-4 h-4 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              />
+            </svg>
+            Try Again
+          </button>
+        </div>
+      </div>
     </div>
 
     <div v-else-if="poll" class="space-y-6">
@@ -40,11 +76,7 @@
         @voted="handleVoted"
       />
 
-      <LiveResults
-        v-if="showResults"
-        :poll-id="poll.id"
-        :auto-refresh="true"
-      />
+      <LiveResults v-if="showResults" :poll-id="poll.id" :auto-refresh="true" />
     </div>
   </div>
 </template>
@@ -55,18 +87,20 @@ import { useRouter, useRoute } from 'vue-router';
 import { pollsApi, type PollWithOptions } from '@/api/polls';
 import VotingInterface from '@/components/VotingInterface.vue';
 import LiveResults from '@/components/LiveResults.vue';
-import { 
-  getMockUserId, 
-  hasVotedForPoll, 
-  markPollAsVoted 
+import {
+  getMockUserId,
+  hasVotedForPoll,
+  markPollAsVoted,
 } from '@/utils/mockAuth';
+import { retryWithNotification } from '@shared/utils';
+import type { ApiError } from '@shared/types';
 
 const router = useRouter();
 const route = useRoute();
 
 const poll = ref<PollWithOptions | null>(null);
 const loading = ref(true);
-const error = ref<string | null>(null);
+const error = ref<ApiError | null>(null);
 const showResults = ref(false);
 
 // MOCK: Using fixed user ID for development
@@ -87,14 +121,20 @@ const fetchPoll = async () => {
       throw new Error('Invalid poll ID');
     }
 
-    poll.value = await pollsApi.getWithOptions(pollId.value);
+    // Use retry mechanism for network resilience
+    poll.value = await retryWithNotification(
+      () => pollsApi.getWithOptions(pollId.value),
+      {
+        maxRetries: 2,
+        resourceName: 'poll',
+      }
+    );
 
     if (hasVotedForPoll(pollId.value)) {
       showResults.value = true;
     }
   } catch (err: any) {
-    error.value = err.message || 'Failed to load poll';
-    console.error('Failed to load poll:', err);
+    error.value = err;
   } finally {
     loading.value = false;
   }

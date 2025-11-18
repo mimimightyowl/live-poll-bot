@@ -36,7 +36,14 @@
         :disabled="!selectedOptionId || submitting"
         @click="submitVote"
       >
-        {{ submitting ? 'Submitting...' : 'Submit Vote' }}
+        <span v-if="submitting" class="flex items-center justify-center">
+          <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          Submitting...
+        </span>
+        <span v-else>Submit Vote</span>
       </button>
     </div>
 
@@ -65,7 +72,8 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { votesApi } from '@/api/votes';
-import type { PollOption, Poll } from '@shared/types';
+import type { PollOption, Poll, ApiError } from '@shared/types';
+import { toast, retryWithNotification } from '@shared/utils';
 
 interface PollWithOptions extends Poll {
   options: PollOption[];
@@ -83,7 +91,7 @@ const emit = defineEmits<{
 const selectedOptionId = ref<number | null>(null);
 const hasVoted = ref(false);
 const submitting = ref(false);
-const error = ref<string | null>(null);
+const error = ref<ApiError | null>(null);
 
 const selectOption = (optionId: number) => {
   if (!hasVoted.value) {
@@ -100,16 +108,24 @@ const submitVote = async () => {
     submitting.value = true;
     error.value = null;
 
-    await votesApi.create({
-      poll_option_id: selectedOptionId.value,
-      user_id: props.userId,
-    });
+    // Use retry mechanism for vote submission
+    await retryWithNotification(
+      () => votesApi.create({
+        poll_option_id: selectedOptionId.value!,
+        user_id: props.userId,
+      }),
+      {
+        maxRetries: 2,
+        resourceName: 'vote',
+      }
+    );
 
     hasVoted.value = true;
+    toast.success('Vote submitted successfully!');
     emit('voted');
   } catch (err: any) {
-    error.value = err.message || 'Failed to submit vote';
-    console.error('Failed to submit vote:', err);
+    error.value = err;
+    // API client already shows error toast, just store the error
   } finally {
     submitting.value = false;
   }

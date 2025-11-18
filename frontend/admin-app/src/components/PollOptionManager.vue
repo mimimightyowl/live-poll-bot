@@ -16,7 +16,10 @@
     </form>
 
     <div v-if="loading" class="text-center py-4">
-      <p class="text-gray-600 text-sm">Loading options...</p>
+      <div
+        class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600"
+      ></div>
+      <p class="text-gray-600 text-sm mt-2">Loading options...</p>
     </div>
 
     <div v-else-if="options.length === 0" class="text-center py-8">
@@ -45,6 +48,7 @@
 import { ref, onMounted } from 'vue';
 import { pollOptionsApi } from '@shared/api/pollOptions';
 import type { PollOption } from '@shared/types';
+import { toast, retryWithNotification } from '@shared/utils';
 
 const props = defineProps<{
   pollId: number;
@@ -61,9 +65,16 @@ const loading = ref(true);
 const fetchOptions = async () => {
   try {
     loading.value = true;
-    options.value = await pollOptionsApi.getByPollId(props.pollId);
+
+    options.value = await retryWithNotification(
+      () => pollOptionsApi.getByPollId(props.pollId),
+      {
+        maxRetries: 2,
+        resourceName: 'options',
+      }
+    );
   } catch (err: any) {
-    console.error('Failed to load options:', err);
+    // API client already shows error toast
   } finally {
     loading.value = false;
   }
@@ -79,9 +90,10 @@ const handleAdd = async () => {
     });
     options.value.push(option);
     newOptionText.value = '';
+    toast.success('Option added successfully');
     emit('options-changed');
   } catch (err: any) {
-    alert(err.message || 'Failed to add option');
+    // API client already shows error toast
   }
 };
 
@@ -91,9 +103,10 @@ const handleDelete = async (pollId: number, poll_option_id: number) => {
   try {
     await pollOptionsApi.delete(pollId, poll_option_id);
     options.value = options.value.filter(opt => opt.id !== poll_option_id);
+    toast.success('Option deleted successfully');
     emit('options-changed');
   } catch (err: any) {
-    alert(err.message || 'Failed to delete option');
+    // API client already shows error toast
   }
 };
 

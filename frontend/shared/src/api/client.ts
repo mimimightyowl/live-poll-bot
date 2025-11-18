@@ -4,11 +4,12 @@ import axios, {
   InternalAxiosRequestConfig,
 } from 'axios';
 import type { ApiError } from '../types';
+import { getToast } from '../utils/toast';
+import { getErrorMessage } from '../utils/errorHandler';
 
 // Get base URL from environment or use default
 const getBaseURL = (): string => {
   try {
-    // @ts-ignore - import.meta.env is defined in Vite environment
     return import.meta.env?.VITE_API_URL || 'http://localhost:3000/api';
   } catch {
     return 'http://localhost:3000/api';
@@ -44,25 +45,51 @@ apiClient.interceptors.response.use(
     return response;
   },
   (error: AxiosError<ApiError>) => {
+    // Get toast instance
+    const toast = getToast();
+
     // Handle common errors
     if (error.response) {
+      const statusCode = error.response.status;
+      const message =
+        error.response.data?.message || getErrorMessage(statusCode);
+
       const apiError: ApiError = {
         success: false,
-        message: error.response.data?.message || 'An error occurred',
-        statusCode: error.response.status,
+        message,
+        statusCode,
       };
+
+      // Show toast notification for client errors
+      if (toast) {
+        // Don't show toast for 401 errors (will be handled by auth flow)
+        if (statusCode !== 401) {
+          toast.error(message);
+        }
+      }
+
       return Promise.reject(apiError);
     } else if (error.request) {
       const apiError: ApiError = {
         success: false,
-        message: 'No response from server',
+        message: 'No response from server. Please check your connection.',
       };
+
+      if (toast) {
+        toast.error(apiError.message);
+      }
+
       return Promise.reject(apiError);
     } else {
       const apiError: ApiError = {
         success: false,
         message: error.message || 'Request failed',
       };
+
+      if (toast) {
+        toast.error(apiError.message);
+      }
+
       return Promise.reject(apiError);
     }
   }
