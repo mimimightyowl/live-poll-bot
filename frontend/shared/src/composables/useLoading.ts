@@ -19,10 +19,13 @@ export interface UseLoadingReturn<T> {
 /**
  * Composable for managing loading states with error handling
  *
+ * Note: Toast notifications are automatically handled by the API client,
+ * so you don't need to pass `showToast: true` - it's disabled by default
+ * in this composable to prevent duplicate toasts.
+ *
  * @example
  * const { data, loading, error, execute } = useLoading(
- *   () => pollsApi.getAll(),
- *   { showToast: true }
+ *   () => pollsApi.getAll()
  * );
  *
  * // Execute on mount
@@ -47,7 +50,8 @@ export const useLoading = <T>(
       data.value = result;
       return result;
     } catch (err) {
-      const apiError = handleError(err, options);
+      // Don't show toast here since API client already handles it
+      const apiError = handleError(err, { ...options, showToast: false });
       error.value = apiError;
       return null;
     } finally {
