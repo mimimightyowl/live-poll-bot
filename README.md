@@ -35,6 +35,7 @@ That's it! Your application is running:
 ## 📖 Documentation
 
 - [Development Guide](./DEVELOPMENT.md) - Complete development workflow
+- [Deployment Guide](./DEPLOYMENT.md) - Production deployment instructions
 - [API Service](./backend/api-service/README.md) - REST API documentation
 - [Realtime Service](./backend/realtime-service/README.md) - WebSocket documentation
 - [Environment Setup](./backend/realtime-service/ENV_SETUP.md) - Configuration guide
@@ -135,10 +136,16 @@ npm run test:logs        # View logs
 ### Production
 
 ```bash
+# Docker deployment (recommended)
+./scripts/deploy.sh      # Deploy all services with Docker Compose
+
+# Manual build
 npm run build            # Build backend services
 npm run build:frontend   # Build frontend apps
 npm start                # Start production
 ```
+
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for complete production deployment guide.
 
 ### Code Quality
 
