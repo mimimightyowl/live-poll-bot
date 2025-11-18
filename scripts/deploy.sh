@@ -122,7 +122,7 @@ else
 fi
 
 # Check Realtime service (through nginx)
-if curl -f http://localhost:${NGINX_PORT:-80}/api/health > /dev/null 2>&1; then
+if curl -f http://localhost:${NGINX_PORT:-80}/realtime/health > /dev/null 2>&1; then
   echo -e "${GREEN}✓ Realtime Service is healthy${NC}"
 else
   echo -e "${RED}✗ Realtime Service is not responding${NC}"

@@ -238,7 +238,7 @@ docker-compose -f docker/docker-compose.prod.yml run --rm api-service npm run mi
 All services have health checks configured:
 
 - API Service: `http://localhost/api/health`
-- Realtime Service: `http://localhost/api/health`
+- Realtime Service: `http://localhost/realtime/health`
 - Frontend Apps: `http://localhost/health`
 - Nginx: `http://localhost/health`
 

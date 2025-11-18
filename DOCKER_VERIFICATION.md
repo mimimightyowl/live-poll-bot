@@ -113,7 +113,7 @@ Test all health endpoints:
 curl -f http://localhost/api/health && echo "✅ API healthy" || echo "❌ API unhealthy"
 
 # Realtime Service (through nginx)
-curl -f http://localhost/api/health && echo "✅ Realtime healthy" || echo "❌ Realtime unhealthy"
+curl -f http://localhost/realtime/health && echo "✅ Realtime healthy" || echo "❌ Realtime unhealthy"
 
 # Poll App
 curl -f http://localhost/ && echo "✅ Poll app healthy" || echo "❌ Poll app unhealthy"
