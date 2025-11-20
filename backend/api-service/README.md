@@ -17,6 +17,8 @@ npm run dev:stack
 
 Health check: `http://localhost:3000/health`
 
+API Documentation (Swagger UI): `http://localhost:3000/api-docs`
+
 Остановка:
 
 ```bash
