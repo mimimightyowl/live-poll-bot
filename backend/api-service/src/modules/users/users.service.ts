@@ -10,6 +10,10 @@ class UsersService {
     return usersRepository.findById(id);
   }
 
+  async getUserByTelegramId(telegramId: string): Promise<User> {
+    return usersRepository.findByTelegramId(telegramId);
+  }
+
   async createUser(userData: CreateUserDto): Promise<User> {
     return usersRepository.create(userData);
   }

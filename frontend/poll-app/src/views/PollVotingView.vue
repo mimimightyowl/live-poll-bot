@@ -22,11 +22,13 @@
       </button>
     </div>
 
-    <div v-if="loading" class="text-center py-12">
+    <div v-if="loading || loadingUser" class="text-center py-12">
       <div
         class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"
       ></div>
-      <p class="text-gray-600 mt-4">Loading poll...</p>
+      <p class="text-gray-600 mt-4">
+        {{ loading ? 'Loading poll...' : 'Loading user...' }}
+      </p>
     </div>
 
     <div v-else-if="error" class="card bg-red-50 border border-red-200">
@@ -69,14 +71,41 @@
       </div>
     </div>
 
-    <div v-else-if="poll" class="space-y-6">
+    <div v-else-if="poll && currentUser" class="space-y-6">
       <VotingInterface
         :poll="poll"
-        :user-id="currentUserId"
+        :user-id="currentUser.id"
         @voted="handleVoted"
       />
 
       <LiveResults v-if="showResults" :poll-id="poll.id" :auto-refresh="true" />
+    </div>
+
+    <div
+      v-else-if="poll && !currentUser && !loadingUser"
+      class="card bg-red-50 border border-red-200"
+    >
+      <div class="flex items-start">
+        <svg
+          class="w-6 h-6 text-red-600 mr-3 flex-shrink-0"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+        <div class="flex-1">
+          <p class="text-red-600 font-medium">Telegram ID is required</p>
+          <p class="text-red-500 text-sm mt-2">
+            Please access this page with a valid telegram_id query parameter.
+          </p>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -85,32 +114,52 @@
 import { ref, onMounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { pollsApi, type PollWithOptions } from '@/api/polls';
+import { usersApi } from '@/api/users';
 import VotingInterface from '@/components/VotingInterface.vue';
 import LiveResults from '@/components/LiveResults.vue';
-import {
-  getMockUserId,
-  hasVotedForPoll,
-  markPollAsVoted,
-} from '@/utils/mockAuth';
+import { getTelegramIdFromUrl } from '@/utils/telegramAuth';
 import { retryWithNotification } from '@shared/utils';
-import type { ApiError } from '@shared/types';
+import type { ApiError, User } from '@shared/types';
 
 const router = useRouter();
 const route = useRoute();
 
 const poll = ref<PollWithOptions | null>(null);
+const currentUser = ref<User | null>(null);
 const loading = ref(true);
+const loadingUser = ref(true);
 const error = ref<ApiError | null>(null);
 const showResults = ref(false);
-
-// MOCK: Using fixed user ID for development
-// In production this should come from auth service
-const currentUserId = computed(() => getMockUserId());
 
 const pollId = computed(() => {
   const id = route.params.id;
   return typeof id === 'string' ? parseInt(id, 10) : 0;
 });
+
+const fetchUser = async () => {
+  try {
+    loadingUser.value = true;
+    const telegramId = getTelegramIdFromUrl();
+
+    if (!telegramId) {
+      loadingUser.value = false;
+      return;
+    }
+
+    // Use retry mechanism for network resilience
+    currentUser.value = await retryWithNotification(
+      () => usersApi.getByTelegramId(telegramId),
+      {
+        maxRetries: 2,
+        resourceName: 'user',
+      }
+    );
+  } catch (err: any) {
+    error.value = err;
+  } finally {
+    loadingUser.value = false;
+  }
+};
 
 const fetchPoll = async () => {
   try {
@@ -129,10 +178,6 @@ const fetchPoll = async () => {
         resourceName: 'poll',
       }
     );
-
-    if (hasVotedForPoll(pollId.value)) {
-      showResults.value = true;
-    }
   } catch (err: any) {
     error.value = err;
   } finally {
@@ -141,7 +186,6 @@ const fetchPoll = async () => {
 };
 
 const handleVoted = () => {
-  markPollAsVoted(pollId.value);
   showResults.value = true;
 };
 
@@ -149,7 +193,7 @@ const goBack = () => {
   router.push('/');
 };
 
-onMounted(() => {
-  fetchPoll();
+onMounted(async () => {
+  await Promise.all([fetchUser(), fetchPoll()]);
 });
 </script>

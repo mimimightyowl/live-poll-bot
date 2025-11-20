@@ -70,5 +70,13 @@ export const paramsSchema = z.object({
     .transform(val => parseInt(val, 10)),
 });
 
+// Schema for validating telegram_id parameter
+export const telegramIdParamsSchema = z.object({
+  telegram_id: z
+    .string()
+    .regex(/^\d+$/, 'Telegram ID must be numeric')
+    .max(20, 'Telegram ID must be at most 20 characters'),
+});
+
 // Schema for partial update (all fields optional)
 export const patchUserSchema = updateUserSchema.partial();
