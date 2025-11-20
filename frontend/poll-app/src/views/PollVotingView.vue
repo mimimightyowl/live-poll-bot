@@ -31,43 +31,68 @@
       </p>
     </div>
 
-    <div v-else-if="error" class="card bg-red-50 border border-red-200">
-      <div class="flex items-start">
-        <svg
-          class="w-6 h-6 text-red-600 mr-3 flex-shrink-0"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-          />
-        </svg>
-        <div class="flex-1">
-          <p class="text-red-600 font-medium">{{ error.message }}</p>
-          <button
-            @click="fetchPoll"
-            class="btn-secondary mt-4 flex items-center"
+    <div v-else-if="userError || pollError" class="space-y-4">
+      <div v-if="userError" class="card bg-red-50 border border-red-200">
+        <div class="flex items-start">
+          <svg
+            class="w-6 h-6 text-red-600 mr-3 flex-shrink-0"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
           >
-            <svg
-              class="w-4 h-4 mr-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-              />
-            </svg>
-            Try Again
-          </button>
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          <div class="flex-1">
+            <p class="text-red-600 font-medium">Failed to load user</p>
+            <p class="text-red-500 text-sm mt-1">{{ userError.message }}</p>
+          </div>
         </div>
+      </div>
+
+      <div v-if="pollError" class="card bg-red-50 border border-red-200">
+        <div class="flex items-start">
+          <svg
+            class="w-6 h-6 text-red-600 mr-3 flex-shrink-0"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          <div class="flex-1">
+            <p class="text-red-600 font-medium">Failed to load poll</p>
+            <p class="text-red-500 text-sm mt-1">{{ pollError.message }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-center">
+        <button @click="retry" class="btn-secondary flex items-center">
+          <svg
+            class="w-4 h-4 mr-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+            />
+          </svg>
+          Try Again
+        </button>
       </div>
     </div>
 
@@ -128,7 +153,8 @@ const poll = ref<PollWithOptions | null>(null);
 const currentUser = ref<User | null>(null);
 const loading = ref(true);
 const loadingUser = ref(true);
-const error = ref<ApiError | null>(null);
+const userError = ref<ApiError | null>(null);
+const pollError = ref<ApiError | null>(null);
 const showResults = ref(false);
 
 const pollId = computed(() => {
@@ -139,6 +165,7 @@ const pollId = computed(() => {
 const fetchUser = async () => {
   try {
     loadingUser.value = true;
+    userError.value = null;
     const telegramId = getTelegramIdFromUrl();
 
     if (!telegramId) {
@@ -155,7 +182,7 @@ const fetchUser = async () => {
       }
     );
   } catch (err: any) {
-    error.value = err;
+    userError.value = err;
   } finally {
     loadingUser.value = false;
   }
@@ -164,7 +191,7 @@ const fetchUser = async () => {
 const fetchPoll = async () => {
   try {
     loading.value = true;
-    error.value = null;
+    pollError.value = null;
 
     if (!pollId.value) {
       throw new Error('Invalid poll ID');
@@ -179,10 +206,16 @@ const fetchPoll = async () => {
       }
     );
   } catch (err: any) {
-    error.value = err;
+    pollError.value = err;
   } finally {
     loading.value = false;
   }
+};
+
+const retry = async () => {
+  userError.value = null;
+  pollError.value = null;
+  await Promise.all([fetchUser(), fetchPoll()]);
 };
 
 const handleVoted = () => {
