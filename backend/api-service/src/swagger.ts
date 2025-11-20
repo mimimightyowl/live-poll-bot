@@ -2,6 +2,7 @@ import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import { Express } from 'express';
 import path from 'path';
+import fs from 'fs';
 import { env } from './config';
 import logger from './shared/logger';
 
@@ -9,6 +10,35 @@ import logger from './shared/logger';
 // __dirname in dev (ts-node): backend/api-service/src
 // __dirname in prod (compiled): backend/api-service/dist
 const projectRoot = path.resolve(__dirname, '..');
+
+// Detect if we're running compiled code (production) or source code (development)
+// In production, __dirname will be in the 'dist' directory
+// In development, __dirname will be in the 'src' directory
+// Check __dirname first, then verify the directory exists
+const isRunningFromDist =
+  __dirname.includes(path.sep + 'dist' + path.sep) ||
+  __dirname.endsWith(path.sep + 'dist');
+const srcPath = path.join(projectRoot, 'src');
+const distPath = path.join(projectRoot, 'dist');
+
+// Prefer the directory we're running from, but fallback to what exists
+let actualSourceDir: string;
+if (isRunningFromDist && fs.existsSync(distPath)) {
+  actualSourceDir = 'dist';
+} else if (fs.existsSync(srcPath)) {
+  actualSourceDir = 'src';
+} else if (fs.existsSync(distPath)) {
+  actualSourceDir = 'dist';
+} else {
+  // Fallback: use dist if running from dist, otherwise src
+  actualSourceDir = isRunningFromDist ? 'dist' : 'src';
+}
+
+const actualFileExtension = actualSourceDir === 'dist' ? '.js' : '.ts';
+
+logger.info(
+  `Swagger: Running from ${isRunningFromDist ? 'dist' : 'src'}, using directory: ${actualSourceDir}, extension: ${actualFileExtension}`
+);
 
 const options = {
   definition: {
@@ -26,8 +56,19 @@ const options = {
     ],
   },
   apis: [
-    path.join(projectRoot, 'src', 'modules', '**', '*.routes.ts'),
-    path.join(projectRoot, 'src', 'app', 'routes.ts'),
+    path.join(
+      projectRoot,
+      actualSourceDir,
+      'modules',
+      '**',
+      `*.routes${actualFileExtension}`
+    ),
+    path.join(
+      projectRoot,
+      actualSourceDir,
+      'app',
+      `routes${actualFileExtension}`
+    ),
   ],
 };
 
