@@ -67,11 +67,33 @@ cp frontend/admin-app/.env.development.example frontend/admin-app/.env.developme
 
 ### Setup
 
+#### Option 1: Docker Compose (Recommended)
+
 ```bash
 # 1. Install all dependencies
 npm install
 
-# 2. Start PostgreSQL
+# 2. Start all services (DB + API + Realtime) in Docker
+npm run dev:stack
+
+# This will:
+# - Start PostgreSQL
+# - Run migrations automatically
+# - Run seed data automatically
+# - Start API service on port 3000
+# - Start Realtime service on ports 3001 (WS) and 3002 (HTTP)
+
+# 3. Start frontend (in separate terminal)
+npm run dev:frontend
+```
+
+#### Option 2: Local Development
+
+```bash
+# 1. Install all dependencies
+npm install
+
+# 2. Start PostgreSQL in Docker
 npm run dev:db
 
 # 3. Wait for DB to be healthy (~10 seconds)
@@ -80,7 +102,7 @@ npm run dev:db
 npm run dev:migrate
 npm run seed
 
-# 5. Start all backend services
+# 5. Start all backend services locally
 npm run dev
 
 # 6. Start frontend (in separate terminal)

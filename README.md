@@ -4,11 +4,27 @@ Real-time polling application with microservices architecture.
 
 ## 🚀 Quick Start
 
+### Option 1: Docker Compose (Recommended)
+
 ```bash
 # 1. Install dependencies
 npm install
 
-# 2. Start PostgreSQL
+# 2. Start all services (DB + API + Realtime) in Docker
+# This will automatically run migrations and seed data
+npm run dev:stack
+
+# 3. Start frontend (in new terminal)
+npm run dev:frontend
+```
+
+### Option 2: Local Development
+
+```bash
+# 1. Install dependencies
+npm install
+
+# 2. Start PostgreSQL in Docker
 npm run dev:db
 
 # 3. Wait ~10 seconds for DB to be ready
@@ -17,7 +33,7 @@ npm run dev:db
 npm run dev:migrate
 npm run seed
 
-# 5. Start all backend services
+# 5. Start all backend services locally
 npm run dev
 
 # 6. Start frontend (in new terminal)
