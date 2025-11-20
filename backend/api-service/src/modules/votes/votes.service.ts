@@ -66,6 +66,11 @@ class VoteService {
       }
     }
   }
+
+  async hasUserVotedForPoll(userId: number, pollId: number): Promise<boolean> {
+    const vote = await voteRepository.findByUserIdAndPollId(userId, pollId);
+    return vote !== null;
+  }
 }
 
 export default new VoteService();

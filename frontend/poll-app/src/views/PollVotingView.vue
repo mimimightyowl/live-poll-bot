@@ -98,6 +98,7 @@
 
     <div v-else-if="poll && currentUser" class="space-y-6">
       <VotingInterface
+        v-if="!showResults"
         :poll="poll"
         :user-id="currentUser.id"
         @voted="handleVoted"
@@ -140,6 +141,7 @@ import { ref, onMounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { pollsApi, type PollWithOptions } from '@/api/polls';
 import { usersApi } from '@/api/users';
+import { votesApi } from '@/api/votes';
 import VotingInterface from '@/components/VotingInterface.vue';
 import LiveResults from '@/components/LiveResults.vue';
 import { getTelegramIdFromUrl } from '@/utils/telegramAuth';
@@ -212,10 +214,33 @@ const fetchPoll = async () => {
   }
 };
 
+const checkVotingStatus = async () => {
+  if (!currentUser.value || !poll.value) {
+    return;
+  }
+
+  try {
+    const status = await votesApi.checkVotingStatus(
+      currentUser.value.id,
+      poll.value.id
+    );
+    if (status.hasVoted) {
+      showResults.value = true;
+    }
+  } catch (err: any) {
+    // Silently fail - if we can't check voting status, allow user to try voting
+    // The backend will prevent duplicate votes via database constraint
+    console.warn('Failed to check voting status:', err);
+  }
+};
+
 const retry = async () => {
   userError.value = null;
   pollError.value = null;
+  showResults.value = false;
   await Promise.all([fetchUser(), fetchPoll()]);
+  // Check voting status after retry
+  await checkVotingStatus();
 };
 
 const handleVoted = () => {
@@ -228,5 +253,7 @@ const goBack = () => {
 
 onMounted(async () => {
   await Promise.all([fetchUser(), fetchPoll()]);
+  // Check voting status after both user and poll are loaded
+  await checkVotingStatus();
 });
 </script>

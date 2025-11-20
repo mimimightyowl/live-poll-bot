@@ -31,3 +31,15 @@ export const paramsSchema = z.object({
 
 // Schema for partial update (all fields optional)
 export const patchVoteSchema = updateVoteSchema.partial();
+
+// Schema for checking if user has voted for a poll
+export const checkVoteQuerySchema = z.object({
+  user_id: z
+    .string()
+    .regex(/^\d+$/, 'User ID must be a positive number')
+    .transform(val => parseInt(val, 10)),
+  poll_id: z
+    .string()
+    .regex(/^\d+$/, 'Poll ID must be a positive number')
+    .transform(val => parseInt(val, 10)),
+});
