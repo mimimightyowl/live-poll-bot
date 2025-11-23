@@ -58,4 +58,10 @@ export const env = {
     process.env.REALTIME_SERVICE_URL || 'http://localhost:3002',
   REALTIME_SERVICE_GRPC_URL:
     process.env.REALTIME_SERVICE_GRPC_URL || 'localhost:50052',
+
+  // CORS configuration
+  CORS_ORIGIN: process.env.CORS_ORIGIN || '*',
+  CORS_ORIGINS: process.env.CORS_ORIGINS
+    ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim())
+    : [],
 };
