@@ -2,6 +2,8 @@
 
 Real-time polling application with microservices architecture.
 
+[![CI](https://github.com/mimimightyowl/live-poll-bot/actions/workflows/ci.yml/badge.svg)](https://github.com/mimimightyowl/live-poll-bot/actions/workflows/ci.yml)
+
 ## 🚀 Quick Start
 
 ### Option 1: Docker Compose (Recommended)
