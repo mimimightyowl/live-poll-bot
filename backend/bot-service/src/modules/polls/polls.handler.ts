@@ -61,12 +61,15 @@ class PollsHandler {
         return;
       }
 
+      const telegramId = ctx.from?.id?.toString();
       let message = `📊 Ваши опросы (${polls.length}):\n\n`;
 
       for (let index = 0; index < polls.length; index++) {
         const poll = polls[index];
         const options = await pollsService.getPollOptions(poll.id);
-        const pollUrl = `${env.FRONTEND_URL}/poll/${poll.id}/vote`;
+        const pollUrl = telegramId
+          ? `${env.FRONTEND_URL}/poll/${poll.id}/vote?telegram_id=${telegramId}`
+          : `${env.FRONTEND_URL}/poll/${poll.id}/vote`;
 
         message += `${index + 1}. ${poll.question}\n`;
         message += `   ID: ${poll.id} | Вариантов: ${options.length}\n`;
@@ -97,7 +100,10 @@ class PollsHandler {
         return;
       }
 
-      const pollUrl = `${env.FRONTEND_URL}/poll/${poll.id}/vote`;
+      const telegramId = ctx.from?.id?.toString();
+      const pollUrl = telegramId
+        ? `${env.FRONTEND_URL}/poll/${poll.id}/vote?telegram_id=${telegramId}`
+        : `${env.FRONTEND_URL}/poll/${poll.id}/vote`;
       const results = await pollsService.getPollResults(pollId);
 
       let message = `📊 Опрос #${poll.id}\n\n`;
@@ -217,7 +223,10 @@ class PollsHandler {
         return;
       }
 
-      const pollUrl = `${env.FRONTEND_URL}/poll/${poll.id}/vote`;
+      const telegramId = ctx.from?.id?.toString();
+      const pollUrl = telegramId
+        ? `${env.FRONTEND_URL}/poll/${poll.id}/vote?telegram_id=${telegramId}`
+        : `${env.FRONTEND_URL}/poll/${poll.id}/vote`;
       await ctx.reply(
         `🎉 Опрос готов к использованию!\n\n` +
           `📊 Вопрос: ${poll.question}\n` +

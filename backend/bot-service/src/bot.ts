@@ -21,12 +21,28 @@ export async function startBot(): Promise<void> {
 
   // Start command handler
   bot.start(async ctx => {
-    const userId = await usersHandler.ensureUser(ctx);
-    if (userId) {
+    try {
+      logger.info(`/start command received from user ${ctx.from?.id}`);
+      const userId = await usersHandler.ensureUser(ctx);
+      if (userId) {
+        await ctx.reply(
+          '👋 Добро пожаловать в Live Poll Bot!\n\n' +
+            'Создавайте интерактивные опросы и делитесь ссылками для голосования.\n\n' +
+            'Используйте /help для списка команд.'
+        );
+        logger.info(
+          `User ${ctx.from?.id} registered/authenticated with userId ${userId}`
+        );
+      } else {
+        logger.warn(`Failed to register user ${ctx.from?.id}`);
+      }
+    } catch (error) {
+      logger.error(
+        `Error in /start command for user ${ctx.from?.id}:`,
+        error as Error
+      );
       await ctx.reply(
-        '👋 Добро пожаловать в Live Poll Bot!\n\n' +
-          'Создавайте интерактивные опросы и делитесь ссылками для голосования.\n\n' +
-          'Используйте /help для списка команд.'
+        '❌ Произошла ошибка при регистрации. Пожалуйста, попробуйте еще раз через несколько секунд.'
       );
     }
   });
