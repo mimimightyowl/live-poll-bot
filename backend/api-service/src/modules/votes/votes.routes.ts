@@ -4,6 +4,7 @@ import {
   createVoteSchema,
   updateVoteSchema,
   paramsSchema,
+  checkVoteQuerySchema,
 } from './votes.schema';
 import validate from '../../shared/middlewares/validate';
 
@@ -101,6 +102,71 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
     next(err);
   }
 });
+
+/**
+ * @swagger
+ * /api/votes/check:
+ *   get:
+ *     summary: Check if a user has voted for a poll
+ *     tags: [Votes]
+ *     parameters:
+ *       - in: query
+ *         name: user_id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: User ID
+ *         example: 1
+ *       - in: query
+ *         name: poll_id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Poll ID
+ *         example: 1
+ *     responses:
+ *       200:
+ *         description: Voting status
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     hasVoted:
+ *                       type: boolean
+ *                       description: Whether the user has voted for this poll
+ *                       example: true
+ *             example:
+ *               success: true
+ *               data:
+ *                 hasVoted: true
+ *       400:
+ *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+router.get(
+  '/check',
+  validate({ query: checkVoteQuerySchema }),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userId = req.query.user_id as unknown as number;
+      const pollId = req.query.poll_id as unknown as number;
+      const hasVoted = await voteService.hasUserVotedForPoll(userId, pollId);
+      res.json({ success: true, data: { hasVoted } });
+    } catch (err) {
+      next(err);
+    }
+  }
+);
 
 /**
  * @swagger

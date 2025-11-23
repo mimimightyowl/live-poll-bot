@@ -82,6 +82,29 @@ class VotesRepository {
 
     return result.rows[0].poll_id;
   }
+
+  async findByUserIdAndPollId(
+    userId: number,
+    pollId: number
+  ): Promise<Vote | null> {
+    const result = await pool.query(
+      `SELECT v.* FROM votes v
+       INNER JOIN poll_options po ON v.poll_option_id = po.id
+       WHERE v.user_id = $1 AND po.poll_id = $2
+       LIMIT 1`,
+      [userId, pollId]
+    );
+
+    if (result.rows.length === 0) {
+      return null;
+    }
+
+    const row = result.rows[0];
+    return {
+      ...row,
+      created_at: new Date(row.created_at),
+    };
+  }
 }
 
 export default new VotesRepository();

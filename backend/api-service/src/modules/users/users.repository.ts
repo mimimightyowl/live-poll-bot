@@ -18,6 +18,19 @@ class UsersRepository {
     return result.rows[0];
   }
 
+  async findByTelegramId(telegramId: string): Promise<User> {
+    const result = await pool.query(
+      'SELECT * FROM users WHERE telegram_id = $1',
+      [telegramId]
+    );
+
+    if (result.rows.length === 0) {
+      throw new AppError('User not found', 404);
+    }
+
+    return result.rows[0];
+  }
+
   async create(userData: CreateUserDto): Promise<User> {
     const { username, email, telegram_id, full_name } = userData;
 

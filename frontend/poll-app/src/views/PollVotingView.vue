@@ -22,14 +22,95 @@
       </button>
     </div>
 
-    <div v-if="loading" class="text-center py-12">
+    <div v-if="loading || loadingUser" class="text-center py-12">
       <div
         class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"
       ></div>
-      <p class="text-gray-600 mt-4">Loading poll...</p>
+      <p class="text-gray-600 mt-4">
+        {{ loading ? 'Loading poll...' : 'Loading user...' }}
+      </p>
     </div>
 
-    <div v-else-if="error" class="card bg-red-50 border border-red-200">
+    <div v-else-if="userError || pollError" class="space-y-4">
+      <div v-if="userError" class="card bg-red-50 border border-red-200">
+        <div class="flex items-start">
+          <svg
+            class="w-6 h-6 text-red-600 mr-3 flex-shrink-0"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          <div class="flex-1">
+            <p class="text-red-600 font-medium">Failed to load user</p>
+            <p class="text-red-500 text-sm mt-1">{{ userError.message }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div v-if="pollError" class="card bg-red-50 border border-red-200">
+        <div class="flex items-start">
+          <svg
+            class="w-6 h-6 text-red-600 mr-3 flex-shrink-0"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          <div class="flex-1">
+            <p class="text-red-600 font-medium">Failed to load poll</p>
+            <p class="text-red-500 text-sm mt-1">{{ pollError.message }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-center">
+        <button @click="retry" class="btn-secondary flex items-center">
+          <svg
+            class="w-4 h-4 mr-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+            />
+          </svg>
+          Try Again
+        </button>
+      </div>
+    </div>
+
+    <div v-else-if="poll && currentUser" class="space-y-6">
+      <VotingInterface
+        v-if="!showResults"
+        :poll="poll"
+        :user-id="currentUser.id"
+        @voted="handleVoted"
+      />
+
+      <LiveResults v-if="showResults" :poll-id="poll.id" :auto-refresh="true" />
+    </div>
+
+    <div
+      v-else-if="poll && !currentUser && !loadingUser"
+      class="card bg-red-50 border border-red-200"
+    >
       <div class="flex items-start">
         <svg
           class="w-6 h-6 text-red-600 mr-3 flex-shrink-0"
@@ -45,38 +126,12 @@
           />
         </svg>
         <div class="flex-1">
-          <p class="text-red-600 font-medium">{{ error.message }}</p>
-          <button
-            @click="fetchPoll"
-            class="btn-secondary mt-4 flex items-center"
-          >
-            <svg
-              class="w-4 h-4 mr-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-              />
-            </svg>
-            Try Again
-          </button>
+          <p class="text-red-600 font-medium">Telegram ID is required</p>
+          <p class="text-red-500 text-sm mt-2">
+            Please access this page with a valid telegram_id query parameter.
+          </p>
         </div>
       </div>
-    </div>
-
-    <div v-else-if="poll" class="space-y-6">
-      <VotingInterface
-        :poll="poll"
-        :user-id="currentUserId"
-        @voted="handleVoted"
-      />
-
-      <LiveResults v-if="showResults" :poll-id="poll.id" :auto-refresh="true" />
     </div>
   </div>
 </template>
@@ -85,37 +140,60 @@
 import { ref, onMounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { pollsApi, type PollWithOptions } from '@/api/polls';
+import { usersApi } from '@/api/users';
+import { votesApi } from '@/api/votes';
 import VotingInterface from '@/components/VotingInterface.vue';
 import LiveResults from '@/components/LiveResults.vue';
-import {
-  getMockUserId,
-  hasVotedForPoll,
-  markPollAsVoted,
-} from '@/utils/mockAuth';
+import { getTelegramIdFromUrl } from '@/utils/telegramAuth';
 import { retryWithNotification } from '@shared/utils';
-import type { ApiError } from '@shared/types';
+import type { ApiError, User } from '@shared/types';
 
 const router = useRouter();
 const route = useRoute();
 
 const poll = ref<PollWithOptions | null>(null);
+const currentUser = ref<User | null>(null);
 const loading = ref(true);
-const error = ref<ApiError | null>(null);
+const loadingUser = ref(true);
+const userError = ref<ApiError | null>(null);
+const pollError = ref<ApiError | null>(null);
 const showResults = ref(false);
-
-// MOCK: Using fixed user ID for development
-// In production this should come from auth service
-const currentUserId = computed(() => getMockUserId());
 
 const pollId = computed(() => {
   const id = route.params.id;
   return typeof id === 'string' ? parseInt(id, 10) : 0;
 });
 
+const fetchUser = async () => {
+  try {
+    loadingUser.value = true;
+    userError.value = null;
+    const telegramId = getTelegramIdFromUrl();
+
+    if (!telegramId) {
+      loadingUser.value = false;
+      return;
+    }
+
+    // Use retry mechanism for network resilience
+    currentUser.value = await retryWithNotification(
+      () => usersApi.getByTelegramId(telegramId),
+      {
+        maxRetries: 2,
+        resourceName: 'user',
+      }
+    );
+  } catch (err: any) {
+    userError.value = err;
+  } finally {
+    loadingUser.value = false;
+  }
+};
+
 const fetchPoll = async () => {
   try {
     loading.value = true;
-    error.value = null;
+    pollError.value = null;
 
     if (!pollId.value) {
       throw new Error('Invalid poll ID');
@@ -129,19 +207,43 @@ const fetchPoll = async () => {
         resourceName: 'poll',
       }
     );
-
-    if (hasVotedForPoll(pollId.value)) {
-      showResults.value = true;
-    }
   } catch (err: any) {
-    error.value = err;
+    pollError.value = err;
   } finally {
     loading.value = false;
   }
 };
 
+const checkVotingStatus = async () => {
+  if (!currentUser.value || !poll.value) {
+    return;
+  }
+
+  try {
+    const status = await votesApi.checkVotingStatus(
+      currentUser.value.id,
+      poll.value.id
+    );
+    if (status.hasVoted) {
+      showResults.value = true;
+    }
+  } catch (err: any) {
+    // Silently fail - if we can't check voting status, allow user to try voting
+    // The backend will prevent duplicate votes via database constraint
+    console.warn('Failed to check voting status:', err);
+  }
+};
+
+const retry = async () => {
+  userError.value = null;
+  pollError.value = null;
+  showResults.value = false;
+  await Promise.all([fetchUser(), fetchPoll()]);
+  // Check voting status after retry
+  await checkVotingStatus();
+};
+
 const handleVoted = () => {
-  markPollAsVoted(pollId.value);
   showResults.value = true;
 };
 
@@ -149,7 +251,9 @@ const goBack = () => {
   router.push('/');
 };
 
-onMounted(() => {
-  fetchPoll();
+onMounted(async () => {
+  await Promise.all([fetchUser(), fetchPoll()]);
+  // Check voting status after both user and poll are loaded
+  await checkVotingStatus();
 });
 </script>

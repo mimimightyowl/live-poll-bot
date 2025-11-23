@@ -4,6 +4,7 @@ import {
   createUserSchema,
   updateUserSchema,
   paramsSchema,
+  telegramIdParamsSchema,
 } from './users.schema';
 import validate from '../../shared/middlewares/validate';
 
@@ -170,6 +171,64 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
     next(err);
   }
 });
+
+/**
+ * @swagger
+ * /api/users/telegram/{telegram_id}:
+ *   get:
+ *     summary: Get a user by Telegram ID
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: telegram_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Telegram user ID
+ *         example: "123456789"
+ *     responses:
+ *       200:
+ *         description: User details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/User'
+ *             example:
+ *               success: true
+ *               data:
+ *                 id: 1
+ *                 username: "john_doe"
+ *                 email: "john@example.com"
+ *                 telegram_id: "123456789"
+ *                 full_name: "John Doe"
+ *                 created_at: "2024-01-15T10:30:00Z"
+ *                 updated_at: null
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+router.get(
+  '/telegram/:telegram_id',
+  validate({ params: telegramIdParamsSchema }),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const telegramId = req.params.telegram_id;
+      const user = await usersService.getUserByTelegramId(telegramId);
+      res.json({ success: true, data: user });
+    } catch (err) {
+      next(err);
+    }
+  }
+);
 
 /**
  * @swagger
