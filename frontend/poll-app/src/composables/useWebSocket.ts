@@ -130,12 +130,13 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
 
   const handleMessage = (message: WebSocketMessage) => {
     switch (message.type) {
-      case 'poll_update':
+      case 'poll_update': {
         const updateMessage = message.payload as PollUpdateMessage;
         if (onUpdate && updateMessage.results) {
           onUpdate(updateMessage.results);
         }
         break;
+      }
       case 'subscribe':
         console.log('Subscribed to poll:', message.payload.poll_id);
         break;

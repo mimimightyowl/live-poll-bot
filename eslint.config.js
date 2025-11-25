@@ -2,6 +2,7 @@ const js = require('@eslint/js');
 const prettier = require('eslint-config-prettier');
 const prettierPlugin = require('eslint-plugin-prettier');
 const tsPlugin = require('@typescript-eslint/eslint-plugin');
+const tsParser = require('@typescript-eslint/parser');
 
 module.exports = [
   js.configs.recommended,
@@ -46,13 +47,41 @@ module.exports = [
   },
   {
     ignores: [
+      'node_modules/',
       '**/node_modules/**',
+      'dist/',
       '**/dist/**',
+      'build/',
       '**/build/**',
-      '**/*.min.js',
-      '**/coverage/**',
+      '.next/',
       '**/.next/**',
+      '.nuxt/',
       '**/.nuxt/**',
+      'out/',
+      '**/out/**',
+      '**/*.min.js',
+      'coverage/',
+      '**/coverage/**',
+      '.nyc_output/',
+      '.env',
+      '.env.local',
+      '.env.*.local',
+      '*.log',
+      'npm-debug.log*',
+      'yarn-debug.log*',
+      'yarn-error.log*',
+      'pnpm-debug.log*',
+      '.vscode/',
+      '.idea/',
+      '*.swp',
+      '*.swo',
+      '*~',
+      '.DS_Store',
+      'Thumbs.db',
+      '*.tsbuildinfo',
+      '.cache/',
+      'temp/',
+      'tmp/',
     ],
   },
   {
@@ -61,7 +90,7 @@ module.exports = [
       '@typescript-eslint': tsPlugin,
     },
     languageOptions: {
-      parser: '@typescript-eslint/parser',
+      parser: tsParser,
       parserOptions: {
         ecmaVersion: 'latest',
         sourceType: 'module',
