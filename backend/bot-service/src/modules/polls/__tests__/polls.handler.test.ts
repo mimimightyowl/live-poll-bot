@@ -24,10 +24,11 @@ describe('PollsHandler', () => {
         username: 'testuser',
         first_name: 'Test',
         last_name: 'User',
+        is_bot: false,
       },
       message: {
         text: '',
-      },
+      } as any,
     };
   });
 

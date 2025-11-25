@@ -14,8 +14,15 @@ export async function startBot(): Promise<void> {
   bot = new Telegraf(env.TELEGRAM_BOT_TOKEN);
 
   // Basic error handling
+  const normalizeError = (value: unknown): Error => {
+    if (value instanceof Error) {
+      return value;
+    }
+    return new Error(typeof value === 'string' ? value : 'Unknown error');
+  };
+
   bot.catch((err, ctx) => {
-    logger.error(`Error in bot handler:`, err);
+    logger.error('Error in bot handler', normalizeError(err));
     ctx.reply('Произошла ошибка. Попробуйте позже.');
   });
 
@@ -39,7 +46,7 @@ export async function startBot(): Promise<void> {
     } catch (error) {
       logger.error(
         `Error in /start command for user ${ctx.from?.id}:`,
-        error as Error
+        normalizeError(error)
       );
       await ctx.reply(
         '❌ Произошла ошибка при регистрации. Пожалуйста, попробуйте еще раз через несколько секунд.'

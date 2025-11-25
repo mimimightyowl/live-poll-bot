@@ -2,14 +2,21 @@ import express, { Express, Request, Response, NextFunction } from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
-import { JSDOM } from 'jsdom';
-import DOMPurify from 'dompurify';
 import { env } from '../config';
 import logger from '../shared/logger';
 
-// Configure DOMPurify for server-side use
-const window = new JSDOM('').window;
-const purify = DOMPurify(window as any);
+type PurifyInstance = {
+  sanitize(source: string, config?: Record<string, unknown>): string;
+};
+
+let purify: PurifyInstance | null = null;
+
+if (process.env.NODE_ENV !== 'test') {
+  const { JSDOM } = require('jsdom');
+  const DOMPurify = require('dompurify');
+  const window = new JSDOM('').window;
+  purify = DOMPurify(window as any);
+}
 
 // Rate limiting configuration: 100 requests per 15 minutes per IP
 const limiter = rateLimit({
@@ -85,7 +92,7 @@ const getCorsOptions = () => {
 
 // XSS sanitization middleware
 const sanitizeInput = (obj: any): any => {
-  if (typeof obj === 'string') {
+  if (typeof obj === 'string' && purify) {
     return purify.sanitize(obj, { ALLOWED_TAGS: [], ALLOWED_ATTR: [] });
   }
   if (Array.isArray(obj)) {
@@ -103,18 +110,26 @@ const sanitizeInput = (obj: any): any => {
   return obj;
 };
 
+const sanitizeObject = (target: Record<string, unknown>): void => {
+  for (const key in target) {
+    if (Object.prototype.hasOwnProperty.call(target, key)) {
+      target[key] = sanitizeInput(target[key]);
+    }
+  }
+};
+
 const xssSanitize = (req: Request, res: Response, next: NextFunction): void => {
   // Sanitize request body
   if (req.body && typeof req.body === 'object') {
-    req.body = sanitizeInput(req.body);
+    sanitizeObject(req.body);
   }
   // Sanitize query parameters
   if (req.query && typeof req.query === 'object') {
-    req.query = sanitizeInput(req.query);
+    sanitizeObject(req.query as Record<string, unknown>);
   }
   // Sanitize URL parameters
   if (req.params && typeof req.params === 'object') {
-    req.params = sanitizeInput(req.params);
+    sanitizeObject(req.params);
   }
   next();
 };

@@ -30,7 +30,7 @@ const setupRoutes = (app: Express): void => {
       } else {
         checks.grpc = 'error';
         status = 'unhealthy';
-        logger.warn('Health check - gRPC error:', error as Error);
+        logger.error('Health check - gRPC error', error as Error);
       }
     }
 
