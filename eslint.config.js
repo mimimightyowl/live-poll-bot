@@ -1,6 +1,7 @@
 const js = require('@eslint/js');
 const prettier = require('eslint-config-prettier');
 const prettierPlugin = require('eslint-plugin-prettier');
+const tsPlugin = require('@typescript-eslint/eslint-plugin');
 
 module.exports = [
   js.configs.recommended,
@@ -53,5 +54,21 @@ module.exports = [
       '**/.next/**',
       '**/.nuxt/**',
     ],
+  },
+  {
+    files: ['**/*.{ts,tsx}'],
+    plugins: {
+      '@typescript-eslint': tsPlugin,
+    },
+    languageOptions: {
+      parser: '@typescript-eslint/parser',
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+      },
+    },
+    rules: {
+      '@typescript-eslint/no-unused-vars': 'warn',
+    },
   },
 ];
