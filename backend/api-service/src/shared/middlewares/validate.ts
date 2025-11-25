@@ -24,16 +24,27 @@ const validate = (schema: ValidationSchema) => {
         validateObject.query = await schema.query.parseAsync(req.query);
       }
 
-      // Replace original data with validated data
-      if (validateObject.params) {
-        req.params = validateObject.params;
-      }
-      if (validateObject.body) {
-        req.body = validateObject.body;
-      }
-      if (validateObject.query) {
-        req.query = validateObject.query;
-      }
+      const assignValidated = (
+        targetKey: 'params' | 'body' | 'query',
+        value: any
+      ) => {
+        if (!value) {
+          return;
+        }
+
+        try {
+          (req as any)[targetKey] = value;
+        } catch {
+          const existing = (req as any)[targetKey];
+          if (existing && typeof existing === 'object') {
+            Object.assign(existing, value);
+          }
+        }
+      };
+
+      assignValidated('params', validateObject.params);
+      assignValidated('body', validateObject.body);
+      assignValidated('query', validateObject.query);
 
       next();
     } catch (error) {

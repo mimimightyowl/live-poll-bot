@@ -104,18 +104,30 @@ export interface AddPollOptionResponse {
 }
 
 class PollsClient {
-  private client: any;
+  private client: any | null = null;
 
   constructor() {
+    if (!env.API_SERVICE_GRPC_URL || process.env.NODE_ENV === 'test') {
+      return;
+    }
+
     this.client = new pollsProto.polls.PollsService(
       env.API_SERVICE_GRPC_URL,
       grpc.credentials.createInsecure()
     );
   }
 
+  private ensureClient() {
+    if (!this.client) {
+      throw new Error('Polls gRPC client is not initialized');
+    }
+
+    return this.client;
+  }
+
   async createPoll(request: CreatePollRequest): Promise<CreatePollResponse> {
     return new Promise((resolve, reject) => {
-      this.client.CreatePoll(
+      this.ensureClient().CreatePoll(
         request,
         (error: grpc.ServiceError | null, response: CreatePollResponse) => {
           if (error) {
@@ -131,7 +143,7 @@ class PollsClient {
 
   async getPoll(request: GetPollRequest): Promise<GetPollResponse> {
     return new Promise((resolve, reject) => {
-      this.client.GetPoll(
+      this.ensureClient().GetPoll(
         request,
         (error: grpc.ServiceError | null, response: GetPollResponse) => {
           if (error) {
@@ -149,7 +161,7 @@ class PollsClient {
     request: GetUserPollsRequest
   ): Promise<GetUserPollsResponse> {
     return new Promise((resolve, reject) => {
-      this.client.GetUserPolls(
+      this.ensureClient().GetUserPolls(
         request,
         (error: grpc.ServiceError | null, response: GetUserPollsResponse) => {
           if (error) {
@@ -167,7 +179,7 @@ class PollsClient {
     request: GetPollResultsRequest
   ): Promise<GetPollResultsResponse> {
     return new Promise((resolve, reject) => {
-      this.client.GetPollResults(
+      this.ensureClient().GetPollResults(
         request,
         (error: grpc.ServiceError | null, response: GetPollResultsResponse) => {
           if (error) {
@@ -185,7 +197,7 @@ class PollsClient {
     request: AddPollOptionRequest
   ): Promise<AddPollOptionResponse> {
     return new Promise((resolve, reject) => {
-      this.client.AddPollOption(
+      this.ensureClient().AddPollOption(
         request,
         (error: grpc.ServiceError | null, response: AddPollOptionResponse) => {
           if (error) {
